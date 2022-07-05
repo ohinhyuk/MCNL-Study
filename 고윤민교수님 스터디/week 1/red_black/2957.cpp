@@ -16,7 +16,7 @@ private :
 public:
 
     Tree(){};
-    ~Tree(){ delete root; };
+    ~Tree(){};
 
     void insert(int X , node* N){
         
