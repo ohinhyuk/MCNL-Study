@@ -69,12 +69,43 @@ class MyMap{
 private:
 
     Tree_node<T1,T2>* root;
+    T1 key;
     int num;
     // vector<Tree_node> myMap;
 
 public:
     MyMap(){root= new Tree_node<T1,T2>(); num=0;};
     ~MyMap(){};
+
+    T2& operator[](T1 key){
+        MyMap<T1,T2>::iterator iter;
+    
+        iter = find(key);
+        
+        // if(iter != end()) cout << (*iter) << endl;
+        // else { cout << "deabak";}
+
+        T2 value;
+
+        if(iter != end()){
+            // return (*iter)->value;
+        }
+        else{
+            insert(make_pair(key,value));
+           
+            iter = find(key);
+            
+            //modify
+        }
+        return (*iter)->value;
+        
+    }
+
+   
+
+    // void operator=(T2 value){
+    //     this->insert(make_pair(this->key , value));
+    // }
 
     void insert(const pair<T1,T2> & in);
     // int find_insert_index(Tree_node in)
@@ -84,8 +115,8 @@ public:
     //end
     //find
     void modify(Tree_node<T1,T2>* modf);
-    void print(Tree_node<T1,T2>* temp);
-    void print();
+    // void print(Tree_node<T1,T2>* temp);
+    // void print();
 
     // Iterator
     typedef MyIterator<T1,T2> iterator;
@@ -102,7 +133,7 @@ public:
     }
 
     iterator find(T1 key){
-        MyMap<int, string>::iterator iter;
+        MyMap<string, int>::iterator iter;
 
         for(iter = begin(); iter!=end(); ++iter){
             if((*iter)->key == key) return iterator(*iter);
@@ -113,11 +144,11 @@ public:
 };
 
 template<typename T1 , typename T2>
-void print_map(MyMap<T1,T2> m){
-    MyMap<int, string>::iterator iter;
+void print_map(MyMap <T1,T2> m){
+    MyMap<string,int>::iterator iter;
 
     for(iter = m.begin(); iter!=m.end(); ++iter){
-        cout << (*iter)->key << ": " << (*iter)->value;
+        cout << (*iter)->key << ": " << (*iter)->value << '\n';
     }
 }
 
@@ -171,36 +202,36 @@ void RR_Rotation(Tree_node<T1,T2>* node){
 
 
 
-template<typename T1 , typename T2>
-void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
+// template<typename T1 , typename T2>
+// void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
 
-    if(!temp) return;
+//     if(!temp) return;
     
-    print(temp->left);
-    cout << temp->key << temp->value << endl;
-    print(temp->right);
+//     print(temp->left);
+//     cout << temp->key << temp->value << endl;
+//     print(temp->right);
     
-}
-template<typename T1 , typename T2>
-void MyMap<T1,T2>::print(){
-    Tree_node<T1,T2>* temp;
-    queue<Tree_node<T1,T2>*> q;
+// }
+// template<typename T1 , typename T2>
+// void MyMap<T1,T2>::print(){
+//     Tree_node<T1,T2>* temp;
+//     queue<Tree_node<T1,T2>*> q;
     
-    q.push(root);
+//     q.push(root);
  
-    while(!q.empty()){
-        temp = q.front();
-        q.pop();
+//     while(!q.empty()){
+//         temp = q.front();
+//         q.pop();
         
-        cout << temp->key << "  " << temp->value << " " << temp->color << endl;
-        if(temp-> parent) cout <<"parent : "<<  temp->parent->key << endl;
+//         cout << temp->key << "  " << temp->value << " " << temp->color << endl;
+//         if(temp-> parent) cout <<"parent : "<<  temp->parent->key << endl;
 
-        if(temp->left) q.push(temp->left);
-        if(temp->right) q.push(temp->right);
-    }
+//         if(temp->left) q.push(temp->left);
+//         if(temp->right) q.push(temp->right);
+//     }
 
-    // print(root);
-}
+//     // print(root);
+// }
 
 template<typename T1, typename T2>
 void MyMap<T1,T2>::modify(Tree_node<T1,T2>* modf){
@@ -339,36 +370,66 @@ void MyMap<T1,T2>::erase (T1 out){
 // }
 
 int main(int argc, char** argv){
-    MyMap <int,string> my;
-    my.insert(make_pair(10,"AA" ));
-    my.insert(make_pair(20,"AA"));
-    my.insert(make_pair(30 ,"AA"));
-    my.insert(make_pair(40,"AA" ));
-    my.insert(make_pair(50,"AA"));
-    my.insert(make_pair(60 ,"AA"));
-    my.insert(make_pair(70,"AA" ));
-    my.insert(make_pair(80,"AA"));
-    my.insert(make_pair(90 ,"AA"));
-    my.insert(make_pair(100,"AA" ));
-    my.insert(make_pair(15,"AA"));
-    my.insert(make_pair(25 ,"AA"));
-    my.insert(make_pair(35,"AA" ));
-    my.insert(make_pair(45,"AA"));
-    my.insert(make_pair(55 ,"AA"));
-    my.insert(make_pair(65,"AA"));
-    my.insert(make_pair(75 ,"AA"));
-    my.insert(make_pair(85,"AA" ));
-    my.insert(make_pair(95,"AA"));
+    MyMap <string,int> m;
+    
+    cout << "** First Step **\n";
+    m.insert(make_pair("Global",10));
+    m.insert(make_pair("Handong",30));
+    m.insert(make_pair("CSEE",20));
+    m.insert(make_pair("MCNL",15));
+    print_map(m);
 
-    MyMap<int,string>::iterator iter;
+    cout << "\n** Second Step ** \n";
+    m["Pohang"] = 50;
+    m["Korea"] = 60;
+    print_map(m);
 
-    // for(iter = my.begin(); iter != my.end(); ++iter){
-    //     cout << (*iter)->key << ": " << (*iter)->value ;
-        
-    //     ;
-    // }
+    cout << "\n** Third Step ** \n";
+    m["CSEE"] = 100;
+    m.erase("Global");
+    print_map(m);
 
-    // my.print();   
-    print_map(my);
+    cout << "\n** Fourth Step **\n";
+    string key = "MCNL";
+    if(m.find(key) != m.end()){
+        cout<< key << " Exists! \n";
+    } else{
+        cout << key << " des not exist! \n";
+    }
+
+    cout << "\n** Fifth Step **\n";
+    key = "Yunmin";
+    if (m.find(key) != m.end()){
+        cout << key << " Exists! \n";
+    } else{
+        cout << key << " does not exist! \n";
+    }
+
+    return 0;
+    // my.insert(make_pair(10,"AA" ));
+    // my.insert(make_pair(20,"AA"));
+    // my.insert(make_pair(30 ,"AA"));
+    // my.insert(make_pair(40,"AA" ));
+    // my.insert(make_pair(50,"AA"));
+    // my.insert(make_pair(60 ,"AA"));
+    // my.insert(make_pair(70,"AA" ));
+    // my.insert(make_pair(80,"AA"));
+    // my.insert(make_pair(90 ,"AA"));
+    // my.insert(make_pair(100,"AA" ));
+    // my.insert(make_pair(15,"AA"));
+    // my.insert(make_pair(25 ,"AA"));
+    // my.insert(make_pair(35,"AA" ));
+    // my.insert(make_pair(45,"AA"));
+    // my.insert(make_pair(55 ,"AA"));
+    // my.insert(make_pair(65,"AA"));
+    // my.insert(make_pair(75 ,"AA"));
+    // my.insert(make_pair(85,"AA" ));
+    // my.insert(make_pair(95,"AA"));
+    
+    // my["AB"]= 20;
+    // my["AA"]= 100;
+    // MyMap<int,string>::iterator iter;
+
+    // print_map();
 
 }
