@@ -362,13 +362,13 @@ int main(int argc, char** argv){
 
     MyMap<int,string>::iterator iter;
 
-    for(iter = my.begin(); iter != my.end(); ++iter){
-        cout << (*iter)->key << ": " << (*iter)->value ;
+    // for(iter = my.begin(); iter != my.end(); ++iter){
+    //     cout << (*iter)->key << ": " << (*iter)->value ;
         
-        ;
-    }
+    //     ;
+    // }
 
-    my.print();   
+    // my.print();   
     print_map(my);
 
 }
