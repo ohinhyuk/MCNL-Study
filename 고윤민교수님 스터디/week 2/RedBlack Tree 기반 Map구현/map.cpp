@@ -29,10 +29,8 @@ I Used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 */
 
 #include <iostream>
-//#include <queue>
 
 using namespace std;
-
 
 // Node Structure
 // {key, value} + color + {L,R,P}
@@ -195,9 +193,6 @@ public:
 
         return end();
     }
-
-    // void print(Tree_node<T1,T2>* temp);
-    // void print();
 
 };
 
@@ -416,47 +411,6 @@ void MyMap<T1,T2>::erase (T1 out){
 
 }
 
-// template <typename T1, typename T2>
-// void MyMap<T1,T2>:: print(){
-    
-//     map->left.print();
-//     //cout <<;
-//     map->right.print();
-// }
-
-
-// template<typename T1 , typename T2>
-// void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
-
-//     if(!temp) return;
-    
-//     print(temp->left);
-//     cout << temp->key << temp->value << endl;
-//     print(temp->right);
-    
-// }
-// template<typename T1 , typename T2>
-// void MyMap<T1,T2>::print(){
-//     Tree_node<T1,T2>* temp;
-//     queue<Tree_node<T1,T2>*> q;
-    
-//     q.push(root);
- 
-//     while(!q.empty()){
-//         temp = q.front();
-//         q.pop();
-        
-//         cout << temp->key << "  " << temp->value << " " << temp->color << endl;
-//         if(temp-> parent) cout <<"parent : "<<  temp->parent->key << endl;
-
-//         if(temp->left) q.push(temp->left);
-//         if(temp->right) q.push(temp->right);
-//     }
-
-//     // print(root);
-// }
-
-
 int main(int argc, char** argv){
     
     MyMap <string,int> m;
@@ -495,30 +449,4 @@ int main(int argc, char** argv){
     }
 
     return 0;
-    // my.insert(make_pair(10,"AA" ));
-    // my.insert(make_pair(20,"AA"));
-    // my.insert(make_pair(30 ,"AA"));
-    // my.insert(make_pair(40,"AA" ));
-    // my.insert(make_pair(50,"AA"));
-    // my.insert(make_pair(60 ,"AA"));
-    // my.insert(make_pair(70,"AA" ));
-    // my.insert(make_pair(80,"AA"));
-    // my.insert(make_pair(90 ,"AA"));
-    // my.insert(make_pair(100,"AA" ));
-    // my.insert(make_pair(15,"AA"));
-    // my.insert(make_pair(25 ,"AA"));
-    // my.insert(make_pair(35,"AA" ));
-    // my.insert(make_pair(45,"AA"));
-    // my.insert(make_pair(55 ,"AA"));
-    // my.insert(make_pair(65,"AA"));
-    // my.insert(make_pair(75 ,"AA"));
-    // my.insert(make_pair(85,"AA" ));
-    // my.insert(make_pair(95,"AA"));
-    
-    // my["AB"]= 20;
-    // my["AA"]= 100;
-    // MyMap<int,string>::iterator iter;
-
-    // print_map();
-
 }
