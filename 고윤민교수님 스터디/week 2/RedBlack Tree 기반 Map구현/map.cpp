@@ -75,8 +75,8 @@ public:
     MyIterator(Tree_node<T1,T2>*p = nullptr)
         :cur(p){}
 
-
     // operator++ overloading
+    // Finding node having next min key
 
     MyIterator& operator++(){
         // If it has right child
@@ -159,7 +159,6 @@ public:
             insert(make_pair(key,value));
            
             iter = find(key);
-            
         }
 
         return (*iter)->value;  // return iter's value for modification.

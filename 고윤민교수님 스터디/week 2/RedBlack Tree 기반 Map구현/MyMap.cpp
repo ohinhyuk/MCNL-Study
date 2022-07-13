@@ -11,7 +11,7 @@ I Implemented . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
   ◼ erase(): Node Deletion using key.
   ◼ find(): Searching value using key.
   ◼ begin(): begin iterator
-  ◼ end(): end iterator
+  ◼ end(): end iterator 
   ◼ Print() : Using 
 
 I Used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -26,15 +26,15 @@ I Used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #########################################################################################################################################
 #########################################################################################################################################
 #########################################################################################################################################
+
 */
 
 #include <iostream>
-#include <queue>
 
 using namespace std;
 
 
-// Node Structure
+// Node Structure   ---------------------------------------------------------------------------------------------------------------------
 // {key, value} + color + {L,R,P}
 
 template <typename T1, typename T2>     // Template for key, value
@@ -56,7 +56,10 @@ struct Tree_node{
 };
 
 
-// Iterator Class Implementation for map
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+
+// Iterator Class Implementation for map -------------------------------------------------------------------------------------------------
 // operator overloading : ++ , * , == , != 
 
 template<typename T1, typename T2>
@@ -72,8 +75,8 @@ public:
     MyIterator(Tree_node<T1,T2>*p = nullptr)
         :cur(p){}
 
-
     // operator++ overloading
+    // Finding node having next min key
 
     MyIterator& operator++(){
         // If it has right child
@@ -124,8 +127,9 @@ public:
     }
 };
 
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-// MyMap Class 
+// MyMap Class ---------------------------------------------------------------------------------------------------------------------------
 // STL Map implementation using Red - Black Tree
 
 template <typename T1, typename T2>
@@ -155,7 +159,6 @@ public:
             insert(make_pair(key,value));
            
             iter = find(key);
-            
         }
 
         return (*iter)->value;  // return iter's value for modification.
@@ -196,24 +199,22 @@ public:
         return end();
     }
 
-    void print(Tree_node<T1,T2>* temp);
-    void print();
 
+    // Print for Checking
+    
+    // void print();                            // Level Order(BFS) using Queue
+    // void print(Tree_node<T1,T2>* temp);      // Inorder
 };
 
-// Print Map Function
-// Print map function using MyIterator
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-template<typename T1 , typename T2>
-void print_map(MyMap <T1,T2> m){
-    MyMap<string,int>::iterator iter;
 
-    for(iter = m.begin(); iter!=m.end(); ++iter){
-        cout << (*iter)->key << ": " << (*iter)->value << '\n';
-    }
-}
+/*
 
-// Erase Function
+// Print for Checking----------------------------------------------------------------------------------------------------------------------
+
+
+// Inorder Print
 
 template<typename T1 , typename T2>
 void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
@@ -225,8 +226,15 @@ void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
     print(temp->right);
     
 }
+
+// Levelorder Print
+
 template<typename T1 , typename T2>
 void MyMap<T1,T2>::print(){
+
+    
+    // print(root); // Inorder
+
     Tree_node<T1,T2>* temp;
     queue<Tree_node<T1,T2>*> q;
     
@@ -237,37 +245,79 @@ void MyMap<T1,T2>::print(){
         q.pop();
         
         cout << "Key : " << temp->key << " value : " << temp->value << " color :" << temp->color  ;
-        if(temp-> parent) cout <<" parent : "<<  temp->parent->key ;
-        if(temp->left) cout << "Left : " << temp->left->key ;
-        if(temp->right) cout << " Right : " << temp->right->key << endl; else{cout << endl;}
+        if(temp-> parent) cout <<" parent : "<<  temp->parent->key << endl;
 
         if(temp->left) q.push(temp->left);
         if(temp->right) q.push(temp->right);
     }
 
-    // print(root);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
+
+
+
+// Print Map Function
+// Print map function using MyIterator
+// Acsending
+
+template<typename T1 , typename T2>
+void print_map(MyMap <T1,T2> m){
+    MyMap<string,int>::iterator iter;
+
+    for(iter = m.begin(); iter!=m.end(); ++iter){
+        cout << (*iter)->key << ": " << (*iter)->value << '\n';
+    }
 }
 
 
 
+// << Rotation >> ------------------------------------------------------------------------------------------------------------------------
+
+
+// LR_Rotation for modify function
+template<typename T1, typename T2>
+void LR_Rotation(Tree_node<T1,T2>* node){
+
+    // node == parent
+    // node_r == parent->right child
+    Tree_node<T1,T2>* node_r = node->right;
+
+    //grand parent change
+    node->parent->left = node_r;
+	
+    // parent->left child change
+	node_r->parent = node->parent;
+    
+    // parent change
+	node-> parent = node_r;
+	
+    // parent->left child -> right child change
+    node->right = node_r->left;
+	if(node->right) node->right->parent = node;
+    
+    // parent->left child change
+	node_r->left = node;
+
+}
 
 // LL_Rotation for modify function
-// Part of Insertion Function
 
 template<typename T1 , typename T2>
 void LL_Rotation(Tree_node<T1,T2>* node){
     
-    //node == parent
+    // node is parent
     
     //grand parent change
     node->parent->left = node ->right;
-    node->parent->color = 'R';
 
     // parent->right change
     if(node-> right) node->right->parent = node->parent;
 
     // parent change
-    node->color = 'B';
     node->right = node->parent;
     node-> parent = node->parent->parent;
     if(node->parent){
@@ -279,29 +329,55 @@ void LL_Rotation(Tree_node<T1,T2>* node){
     node->right->parent = node;
 }
 
+// RL_Rotation Function for modify function
+
+template<typename T1, typename T2>
+void RL_Rotation(Tree_node<T1,T2>* node){
+
+    // node == parent
+    // node_l == parent->left child
+    Tree_node<T1,T2>* node_l = node->left;
+
+    //grand parent change
+    node->parent->right = node_l;
+	
+    // parent->left child change
+	node_l->parent = node->parent;
+    
+    // parent change
+	node-> parent = node_l;
+	
+    // parent->left child -> right child change
+    node->left = node_l->right;
+	if(node->left) node->left->parent = node;
+    
+    // parent->left child change
+	node_l->right = node;
+
+}
+
 
 // RR_Rotation for modify function
-// Part of Insertion Function
 
 template<typename T1 , typename T2>
 void RR_Rotation(Tree_node<T1,T2>* node){
     
-    //node == parent
+    // node is parent
 
     //grand parent change
     node->parent->right = node ->left;
-    node->parent->color = 'R';
+    // node->parent->color = 'R';
     // parent->right change
     if(node->left) node->left->parent = node->parent;
 
     // parent change
-    node->color = 'B';
+    // node->color = 'B';
     node->left = node->parent;
     node-> parent = node->parent->parent;
     if(node->parent){
         if(node->parent->right == node->left) node->parent->right = node;
         if(node->parent->left == node->left) node->parent->left = node;
-    } 
+    }
     
     
     //grand parent change(rest part)
@@ -309,109 +385,16 @@ void RR_Rotation(Tree_node<T1,T2>* node){
 
 }
 
-// Modify Function for Insert Function
-// Part of Insertion Function
-
-template<typename T1, typename T2>
-void MyMap<T1,T2>::modify(Tree_node<T1,T2>* modf){
-    
-    // If root -> color = 'Black'
-    if(root == modf) modf->color = 'B';
-
-    // Else cases
-    else{
-        Tree_node<T1,T2>* parent = modf->parent;    // Parent
-        if(parent->color =='B') return;             // If parent is Black Node
-        
-        Tree_node<T1,T2>* gr_parent = parent->parent;   // Grand Parent
-        
-        // If parent is Left child of Grand Parent
-        if(parent == gr_parent->left){                  
-            
-            // If Uncle is Red Node
-            // Color change + recursive
-            if(gr_parent->right && gr_parent->right->color=='R'){
-                gr_parent->right->color = 'B';
-                gr_parent->color = 'R';
-                parent->color = 'B';
-                modify(gr_parent);
-            }
-
-            // If Uncle is Black Node
-            else{
-
-                // LL Case
-                if(modf == parent->left){ 
-                    if(gr_parent == root) root = parent;
-                    LL_Rotation(parent);
-                    }
-
-                // LR Case
-                else if(modf == parent->right){
-                    // grand parent change
-                    gr_parent->left = modf;
-
-                    //parent change
-                    parent->right = modf->left;
-                    parent->parent = modf;
-
-                    // modf->left change
-                    if(modf->left) modf->left->parent = parent;
-
-                    //child change
-                    modf->left = parent;
-                    modf->parent = gr_parent;
-                    
-                    if(gr_parent == root) root = modf;
-                    LL_Rotation(modf);
-                }
-            }
-        }
-
-        // If parent is Right child of Grand Parent
-        else if(parent == gr_parent ->right){
-            
-            // If Uncle is Red Node
-            // Color change + recursive
-            if(gr_parent->left && gr_parent->left->color =='R'){
-                gr_parent->left->color = 'B';
-                gr_parent->color = 'R';
-                parent->color = 'B';
-                modify(gr_parent);
-            }
-            
-            // If Uncle is Black Node
-            else{
-                // RR Case
-                if(modf == parent->right) {
-                    if(gr_parent == root) root = parent;
-                    RR_Rotation(parent);
-                }
-                
-                // RL Case
-                else if(modf == parent->left){
-                    // grand parent change
-                    gr_parent->right = modf;
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-                    //parent change
-                    parent->left = modf->right;
-                    parent->parent = modf;
 
-                    //modf->right change
-                    if(modf->right) modf->right->parent = parent;
 
-                    //child change
-                    modf->right = parent;
-                    modf->parent = gr_parent;
 
-                    if(gr_parent == root) root = modf;
-                    RR_Rotation(modf);
-                }
-            }
-        }
-    }
-}
+
+// << Insertion >> -----------------------------------------------------------------------------------------------------------------------------------
+
+
 
 // Insertion Function
 // It is supported by Modify Function , RR_rotation Function , LL_rotation Function.
@@ -460,55 +443,178 @@ void MyMap<T1,T2>::insert (const pair<T1,T2> & in){
 }
 
 
+// Modify Function for Insert Function
+// Part of Insertion Function
+
+template<typename T1, typename T2>
+void MyMap<T1,T2>::modify(Tree_node<T1,T2>* modf){
+    
+    // If root -> color = 'Black'
+    if(root == modf) modf->color = 'B';
+
+    // Else cases
+    else{
+        Tree_node<T1,T2>* parent = modf->parent;    // Parent
+        if(parent->color =='B') return;             // If parent is Black Node
+        
+        Tree_node<T1,T2>* gr_parent = parent->parent;   // Grand Parent
+        
+        // If parent is Left child of Grand Parent
+        if(parent == gr_parent->left){                  
+            
+            // If Uncle is Red Node
+            // Color change + recursive
+            if(gr_parent->right && gr_parent->right->color=='R'){
+                gr_parent->right->color = 'B';
+                gr_parent->color = 'R';
+                parent->color = 'B';
+                modify(gr_parent);
+            }
+
+            // If Uncle is Black Node
+            else{
+
+                // LL Case
+                if(modf == parent->left){ 
+                    if(gr_parent == root) root = parent;
+                    parent->parent->color = 'R';
+                    parent->color = 'B';
+                    LL_Rotation(parent);
+                    
+                    }
+
+                // LR Case
+                else if(modf == parent->right){
+                    
+                    LR_Rotation(parent);
+                    
+                    if(gr_parent == root) root = modf;
+                    modf->parent->color='R';
+                    modf->color='B';
+
+                    LL_Rotation(modf);
+                    
+                }
+            }
+        }
+
+        // If parent is Right child of Grand Parent
+        else if(parent == gr_parent ->right){
+            
+            // If Uncle is Red Node
+            // Color change + recursive
+            if(gr_parent->left && gr_parent->left->color =='R'){
+                gr_parent->left->color = 'B';
+                gr_parent->color = 'R';
+                parent->color = 'B';
+                modify(gr_parent);
+            }
+            
+            // If Uncle is Black Node
+            else{
+                // RR Case
+                if(modf == parent->right) {
+                    if(gr_parent == root) root = parent;
+                    parent->parent->color = 'R';
+                    parent->color = 'B';
+                    RR_Rotation(parent);
+                }
+                
+                // RL Case
+                else if(modf == parent->left){
+                    
+                    RL_Rotation(parent);
+
+                    if(gr_parent == root) root = modf;
+                    
+                    modf->parent->color = 'R';
+                    modf->color = 'B';
+                    
+                    RR_Rotation(modf);
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+
+// << Erase >> ---------------------------------------------------------------------------------------------------------------------------
+
 
 // Erase Function
+// [ modify_erase , RR_Rotation , LL_Rotation ] functions are used.
+// Erase -> modify -> rotate
 
 template<typename T1 , typename T2>
 void MyMap<T1,T2>::erase (T1 out){
-     Tree_node<T1,T2>* search = root;
-    Tree_node<T1,T2>* replace;
-    Tree_node<T1,T2>* del_parent;
-    char del_color;
-
-    char LR;
-
-    while(search){
-        if(out > search->key) search = search->right;
-        
-        else if(out < search->key) search = search->left;
     
+    Tree_node<T1,T2>* search = root;    // pointer searching delete node (having key 'out')
+    Tree_node<T1,T2>* replace;          // pointing replace node
+    Tree_node<T1,T2>* del_parent;       // parent of search pointer
+    
+    char del_color;                     // Color of delete node
+    char LR;                            // Whether the delete node is left child or right child
+
+    
+    while(search){
+
+        // Finding delete node
+        if(out > search->key) search = search->right;
+        else if(out < search->key) search = search->left;
+
+        // Found
         else{
+
+        // Delete
+
+        // Case 1 : NO Child
+        
             if(!search->left && !search->right){
-                del_color = search->color;
-                if(search==root) delete search;
+                
+                del_color = search->color; // color information
+                
+                if(search==root) delete search; // if root
                 else{
-                    del_parent = search->parent;
-                    if(del_parent) cout << del_parent->key << endl;
-                    if(del_parent->right == search) { del_parent->right = nullptr;  LR = 'R';}
-                    else if(del_parent->left == search){ del_parent->left = nullptr;  LR = 'L';}
+                    del_parent = search->parent;    // parent of delete node
+
+                    // LR information
+                    if(del_parent->right == search) { del_parent->right = NULL;  LR = 'R';}
+                    else if(del_parent->left == search){ del_parent->left = NULL;  LR = 'L';}
 
                     delete search;
                     
                 }
 
-                if(del_color == 'B') modify_erase(del_parent , LR);// modify 로 del_parent보내주기. LR 보내기
-                cout << "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ\n";
+                
+                // if delete node is Red -> Pass
+
+                // if delete node is black -> Modify_erase   (Because replace node is NIL -> color is black)
+                if(del_color == 'B') modify_erase(del_parent , LR); 
+
+
                 break;
             }
 
+        // Case 2-1 : 1 Child(left)
+        
             else if(search->left && !search->right){
-                
-                replace = search->left;
-                del_color = search->color;
 
+                replace = search->left;     // replace node
+                del_color = search->color;  // color information
+
+                // if root
                 if(search==root){
                     root = replace;
                     root->parent = nullptr;
                     delete search;
                 }
+                // Else
                 else{
-                    del_parent = search->parent;
+                    del_parent = search->parent;    // parent of delete node
 
+                    // LR information
                     if(del_parent->left == search) {del_parent->left = replace; LR = 'L';}
                     else if(del_parent->right == search) {del_parent-> right = replace;  LR ='R';}
 
@@ -517,31 +623,43 @@ void MyMap<T1,T2>::erase (T1 out){
                     delete search;
                 }
 
+                
+                // if color of delete node is Red -> Pass
+
+                // if color of delete node is Black
                 if(del_color == 'B'){
+                    
+                    // if replace node color is Red -> change to black
                     if(replace->color =='R') replace->color = 'B';
                     
-
+                    // if replace node color is Black -> modify_erase
                     else if(replace->color == 'B') modify_erase(del_parent , LR);
-                        // modify로 del_parent 보내주기 LR 보내기
+                        
                     
                 }
 
                 break;
             }
+
+        // Case 2-2 : 1 Child(right)
+        
             else if(!search->left && search->right){
+                
+                replace = search->right;        // replace of delete node
+                del_color = search->color;      // color information
 
-                replace = search->right;
-                del_color = search->color;
-
+                // if root
                 if(search==root){
                     root = replace;
                     root->parent = nullptr;
                     delete search;
                 }
+                // Else
                 else{
-                    del_parent = search->parent;
+                    del_parent = search->parent;    // Parent of delete node
 
-                    if(del_parent->left == search){ del_parent->left = replace;  LR = 'L';} 
+                    // LR information
+                    if(del_parent->left == search){ del_parent->left = replace;  LR = 'L';}         
                     else if(del_parent->right == search){ del_parent->right = replace; LR = 'R';} 
 
                     replace->parent = search->parent;
@@ -549,29 +667,37 @@ void MyMap<T1,T2>::erase (T1 out){
                     delete search;
                 }
 
+                
+                // if color of delete node is Red -> Pass
+
+                // if color of delete node is Black
                 if(del_color == 'B'){
+
+                    // if replace node color is Red -> change to black
                     if(replace->color =='R') replace->color ='B';
-                    else if(replace ->color == 'B') modify_erase(del_parent , LR);
-                        //modify로 del_parent 보내주기 LR 보내기
                     
+                    // if replace node color is Black -> modify_erase
+                    else if(replace ->color == 'B') modify_erase(del_parent , LR);
+
                 }
 
                 break;
             }
 
+        // Case 3 : 2 Child (left & right)
 
             else{
-                replace = search->right;
 
+                // replace node is maximum of left subtree                
+                replace = search->right;
                 while(replace->left) replace = replace->left;
                 
                 T1 key_temp = replace->key;
                 T2 value_temp = replace->value;
                 
-                erase(replace->key);
-                
-                // cout << key_temp << value_temp;
+                erase(replace->key);        // recursive erase
 
+                // change delete node to replace node
                 search->key = key_temp;
                 search->value = value_temp;
 
@@ -581,24 +707,54 @@ void MyMap<T1,T2>::erase (T1 out){
     }
 }
 
+// Isblack Function
+// For modify_erase function
+// NIL or node->color =='B' -> True
+
 template<typename T1, typename T2>
 bool isblack(Tree_node<T1,T2>* node){
     return (!node || (node && node->color =='B') );
 }
 
+// Modify_Erase Function
+// recoloring Nodes and modifying Tree After Delete
+// p : parent of delete node
+// s : sibling of delete node
+// s_l : left child of sibling
+// s_r : right child of sibling
+
+// if LR is 'L' -> There are 5 cases
+// if LR is 'R' -> There are 5 cases (Symmetric to the case above)
+
 template<typename T1 , typename T2>
 void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
 
+// Delete node is left child of p
     if(LR =='L'){
+    
+// Case 1 :
+    // p is Red 
+    // s is black
+    // s_l & s_r is black
+    
+    // << Solution >>
+    // Recoloring
 
-        
-    // Case 1
         if(p->color == 'R' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
             p->color = 'B';
             p->right->color = 'R';
         }
-    // Case 2
+
+// Case 2 :
+    // p is black
+    // s is black
+    // s_l & s_r & black
+
+    // << Solution >>
+    // Recoloring
+    // recursive
+
         else if(p->color =='B' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
             p->right->color = 'R';
             if(p->parent){
@@ -607,110 +763,92 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             }
             
         }
-    // Case 3
+// Case 3 :
+    // s is black
+    // s_r is Red
+
+    // << Solution >>
+    // RR rotation + Recoloring
+
         else if( (p->right && isblack(p->right)) && (p->right->right && !isblack(p->right->right)) ){
             
-            // RR rotation 변형시켜서
             Tree_node<T1,T2>* s = p->right;
             
-            if(p == root) root = s;
+            if(p == root) root = s; // if p is root , root change
 
-            // sibling color change
+
             s->color = p->color;
-
-            // parent change
-            p->right = s->left;
             p->color = 'B';
-
-            // sibling change
-            s->parent = p->parent;
-            s->left = p;
-
-            // sibling -> right change
             s->right->color = 'B';
 
-            // rest change
-            if(root != s){
-                if(s->parent->left == p) s->parent->left = s;
-                else if( s->parent->right == p) s->parent->right = s;
-            }
-            if(p->right) p->right->parent = p; 
-            p->parent = s;
+            RR_Rotation(s);
 
         }
-    // Case 4
-        else if( (p->right && isblack(p->right)) && (p->right->left && p->right->left->color =='R') ){
-            // RL rotation 변형
-            
 
+// Case 4 :
+    // s is Black
+    // s_l is Red
+    
+    // << Solution >>
+    // RL rotation + Recoloring
+
+        else if( (p->right && isblack(p->right)) && (p->right->left && p->right->left->color =='R') ){
+            
             Tree_node<T1,T2>* s = p->right;
             Tree_node<T1,T2>* s_l = s->left;
 
-            if(p == root) root = s_l;
+            if(p == root) root = s_l; // if p is root , root change
 
-            // parent change
-            p->right = s_l;
+            // Step 1 : rotate to right
 
-            // left of sibling change
-            s_l->parent = s->parent;
             s_l->color = 'B';
-            s_l->right = s;
-
-            // sibling change
-
-            s->parent = s_l;
             s->color = 'R';
-            s->left = nullptr;
+            
+            RL_Rotation(s);
 
-            //Case 3
-            cout << "Debug";
+            // Step 2 : RR rotation(Case 3)
+
             s = s_l;
 
-            // sibling color change
             s->color = p->color;
-
-            // parent change
-            p->right = s->left;
             p->color = 'B';
-
-            // sibling change
-            s->parent = p->parent;
-            s->left = p;
-
-            // sibling -> right change
             s->right->color = 'B';
 
-            // rest change
-            if(root != s){
-                if(s->parent->left == p) s->parent->left = s;
-                else if( s->parent->right == p) s->parent->right = s;
-            }
-            if(p->right) p->right->parent = p; 
-            p->parent = s;
-
-            
+            RR_Rotation(s);
 
         }
-    // Case 5
+
+// Case 5 :
+    // s is Red
+
+    // << Solution >>
+    // RR rotation + Recursive
+    
         else if( (p->right && p->right->color=='R') ){
-            // RR rotation 맞나?
             
             if(p == root) root = p->right;
+
+            p->color = 'R';
+            p->right->color = 'B';
 
             RR_Rotation(p->right);
             modify_erase(p,'L');
         }
 
     }
-    // 대칭
+    
+// Delete node is right child of p
     else if(LR = 'R'){
 
-    // Case 1
+// Case 1 : Recoloring
+
         if(p->color == 'R' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
             p->color = 'B';
             p->left->color = 'R';
         }
-    // Case 2
+
+// Case 2 : Recoloring + recursive
+
         else if(p->color =='B' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
             p->left->color = 'R';
             if(p->parent){
@@ -718,94 +856,60 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
                 else if(p->parent->right && p->parent->right == p) modify_erase(p->parent, 'R');
             }
         }
-    // Case 3
+
+// Case 3 : LL rotation
+
         else if( (p->left && isblack(p->left)) && (p->left->left && p->left->left->color =='R') ){
-            // RR rotation 변형시켜서
+            
             Tree_node<T1,T2>* s = p->left;
             
             if(p==root) root = s;
 
-            // sibling color change
             s->color = p->color;
-
-            // parent change
-            p->left = s->right;
             p->color = 'B';
-
-            // sibling change
-            s->parent = p->parent;
-            s->right = p;
-
-            // sibling -> right change
             s->left->color = 'B';
 
-            // rest change
-            if(root != s){
-                if(s->parent->left == p) s->parent->left = s;
-                else if( s->parent->right == p) s->parent->right = s;
-            }
-            if(p->left) p->left->parent = p; 
-            p->parent = s;
-
+            LL_Rotation(s);
 
         }
-    // Case 4
-        else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
-            // RL rotation 변형
-            
 
+// Case 4 : LR rotation
+
+        else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
+            
             Tree_node<T1,T2>* s = p->left;
             Tree_node<T1,T2>* s_r = s->right;
 
             if(p == root) root = s_r;
 
-            // parent change
-            p->left = s_r;
 
-            // left of sibling change
-            s_r->parent = s->parent;
             s_r->color = 'B';
-            s_r->right = s;
-
-            // sibling change
-
-            s->parent = s_r;
             s->color = 'R';
-            s->right = nullptr;
 
-            //Case 3
+            LR_Rotation(s);
+
+        // Step 2 : LL rotate(Case 3)
 
             s = s_r;
 
-            // sibling color change
+            // recoloring
+
             s->color = p->color;
-
-            // parent change
-            p->left = s->right;
             p->color = 'B';
-
-            // sibling change
-            s->parent = p->parent;
-            s->right = p;
-
-            // sibling -> right change
             s->left->color = 'B';
-
-            // rest change
-            if(root != s){
-                if(s->parent->left == p) s->parent->left = s;
-                else if( s->parent->right == p) s->parent->right = s;
-            }
-            if(p->left) p->left->parent = p; 
-            p->parent = s;
             
+            LL_Rotation(s);
 
         }
-    // Case 5
+
+// Case 5 : LL rotation + recursive
+
         else if( (p->left && p->left->color=='R') ){
 
             if(p == root ) root = p->left;
-            // RR rotation 맞나?
+            
+            p->color = 'R';
+            p->left->color = 'B';
             LL_Rotation(p->left);
             modify_erase(p,'R');
         }
@@ -813,100 +917,48 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
     }
 }
 
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+
 int main(int argc, char** argv){
     
-    MyMap <int,string> m;
+    MyMap <string,int> m;
     
-    // cout << "** First Step **\n";
-    // m.insert(make_pair("Global",10));
-    // m.insert(make_pair("Handong",30));
-    // m.insert(make_pair("CSEE",20));
-    // m.insert(make_pair("MCNL",15));
-    // print_map(m);
+    cout << "** First Step **\n";
+    m.insert(make_pair("Global",10));
+    m.insert(make_pair("Handong",30));
+    m.insert(make_pair("CSEE",20));
+    m.insert(make_pair("MCNL",15));
+    print_map(m);
 
-    // cout << "\n** Second Step ** \n";
-    // m["Pohang"] = 50;
-    // m["Korea"] = 60;
-    // print_map(m);
+    cout << "\n** Second Step ** \n";
+    m["Pohang"] = 50;
+    m["Korea"] = 60;
+    print_map(m);
 
-    // cout << "\n** Third Step ** \n";
-    // m["CSEE"] = 100;
-    // m.erase("Global");
-    // print_map(m);
+    cout << "\n** Third Step ** \n";
+    m["CSEE"] = 100;
+    m.erase("Global");
+    print_map(m);
 
-    // cout << "\n** Fourth Step **\n";
-    // string key = "MCNL";
-    // if(m.find(key) != m.end()){
-    //     cout<< key << " Exists! \n";
-    // } else{
-    //     cout << key << " des not exist! \n";
-    // }
+    cout << "\n** Fourth Step **\n";
+    string key = "MCNL";
+    if(m.find(key) != m.end()){
+        cout<< key << " Exists! \n";
+    } else{
+        cout << key << " does not exist! \n";
+    }
 
-    // cout << "\n** Fifth Step **\n";
-    // key = "Yunmin";
-    // if (m.find(key) != m.end()){
-    //     cout << key << " Exists! \n";
-    // } else{
-    //     cout << key << " does not exist! \n";
-    // }
-
-    // return 0;
-    // my.insert(make_pair(10,"AA" ));
-    // my.insert(make_pair(20,"AA"));
-    // my.insert(make_pair(30 ,"AA"));
-    // my.insert(make_pair(40,"AA" ));
-    // my.insert(make_pair(50,"AA"));
-    // my.insert(make_pair(60 ,"AA"));
-    // my.insert(make_pair(70,"AA" ));
-    // my.insert(make_pair(80,"AA"));
-    // my.insert(make_pair(90 ,"AA"));
-    // my.insert(make_pair(100,"AA" ));
-    // my.insert(make_pair(15,"AA"));
-    // my.insert(make_pair(25 ,"AA"));
-    // my.insert(make_pair(35,"AA" ));
-    // my.insert(make_pair(45,"AA"));
-    // my.insert(make_pair(55 ,"AA"));
-    // my.insert(make_pair(65,"AA"));
-    // my.insert(make_pair(75 ,"AA"));
-    // my.insert(make_pair(85,"AA" ));
-    // my.insert(make_pair(95,"AA"));
+    cout << "\n** Fifth Step **\n";
+    key = "Yunmin";
+    if (m.find(key) != m.end()){
+        cout << key << " Exists! \n";
+    } else{
+        cout << key << " does not exist! \n";
+    }
     
-    // my["AB"]= 20;
-    // my["AA"]= 100;
-    // MyMap<int,string>::iterator iter;
 
-    // print_map();
-
-    m.insert(make_pair(1,"A"));
-    m.insert(make_pair(2,"A"));
-    m.insert(make_pair(3,"A"));
-    m.insert(make_pair(4,"A"));
-    m.insert(make_pair(5,"A"));
-    m.insert(make_pair(6,"A"));
-    m.insert(make_pair(7,"A"));
-    m.insert(make_pair(8,"A"));
-    m.insert(make_pair(9,"A"));
-    m.insert(make_pair(10,"A"));
-    m.insert(make_pair(20,"A"));
-    m.insert(make_pair(19,"A"));
-    m.insert(make_pair(18,"A"));
-    m.insert(make_pair(17,"A"));
-    m.insert(make_pair(16,"A"));
-    m.insert(make_pair(15,"A"));
-    m.insert(make_pair(14,"A"));
-    m.insert(make_pair(13,"A"));
-    m.insert(make_pair(12,"A"));
-    m.insert(make_pair(11,"A"));
+    return 0;
     
-    m.erase(17);
-    m.erase(6);
-    m.erase(9);
-    m.erase(13);
-    m.erase(1);
-    m.erase(8);
-    m.erase(14);
-    m.print();
-    // m.erase(10);
-    // m.erase(7);
-    // m.print();
 }
