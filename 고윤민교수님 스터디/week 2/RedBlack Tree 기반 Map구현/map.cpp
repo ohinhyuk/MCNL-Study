@@ -26,6 +26,7 @@ I Used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #########################################################################################################################################
 #########################################################################################################################################
 #########################################################################################################################################
+
 */
 
 #include <iostream>
@@ -33,7 +34,7 @@ I Used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 using namespace std;
 
 
-// Node Structure
+// Node Structure   ---------------------------------------------------------------------------------------------------------------------
 // {key, value} + color + {L,R,P}
 
 template <typename T1, typename T2>     // Template for key, value
@@ -55,7 +56,10 @@ struct Tree_node{
 };
 
 
-// Iterator Class Implementation for map
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+
+// Iterator Class Implementation for map -------------------------------------------------------------------------------------------------
 // operator overloading : ++ , * , == , != 
 
 template<typename T1, typename T2>
@@ -123,8 +127,9 @@ public:
     }
 };
 
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-// MyMap Class 
+// MyMap Class ---------------------------------------------------------------------------------------------------------------------------
 // STL Map implementation using Red - Black Tree
 
 template <typename T1, typename T2>
@@ -202,11 +207,12 @@ public:
     // void print(Tree_node<T1,T2>* temp);      // Inorder
 };
 
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
 
 /*
 
-//////////////////////////////////////////// Print for Checking ////////////////////////////////////////////
+// Print for Checking----------------------------------------------------------------------------------------------------------------------
 
 
 // Inorder Print
@@ -248,16 +254,9 @@ void MyMap<T1,T2>::print(){
 
 }
 
-
-#####################################################################################################################
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
 */
-
-
-
-
-
-
 
 
 
@@ -274,6 +273,11 @@ void print_map(MyMap <T1,T2> m){
         cout << (*iter)->key << ": " << (*iter)->value << '\n';
     }
 }
+
+
+
+// << InSertion >> ------------------------------------------------------------------------------------------------------------------------
+
 
 
 // LL_Rotation for modify function
@@ -333,6 +337,53 @@ void RR_Rotation(Tree_node<T1,T2>* node){
     node->left->parent = node;
 
 }
+
+// Insertion Function
+// It is supported by Modify Function , RR_rotation Function , LL_rotation Function.
+// Insertion -> Modification -> Rotation
+
+template<typename T1 , typename T2>
+void MyMap<T1,T2>::insert (const pair<T1,T2> & in){
+    
+    // First Node
+    if(num == 0){
+        root->key = in.first; root->value = in.second;
+        num++;
+        modify(root);
+    }
+    // Else Nodes
+    else{
+
+        // Finding location + Insertion
+        Tree_node<T1,T2>* search = root;
+        
+        while(search){
+        
+        if(search->key == in.first) return;
+
+        else if( search->key < in.first){
+            if(!search->right){ search->right = new Tree_node<T1,T2>(in.first,in.second,'R',nullptr,nullptr,search); break;}
+            search = search-> right;
+        } 
+        else if(search->key > in.first){
+            
+            if(!search->left){ search->left = new Tree_node<T1,T2> (in.first,in.second,'R',nullptr,nullptr,search); break;}
+            search = search->left;
+        }
+        
+        }
+        
+        // Num Increase
+        num++; 
+        
+        // Modification
+        if(search->left && in.first == search->left->key) modify(search->left);
+        else if(search->right && in.first == search->right->key) modify(search->right);
+
+    }
+
+}
+
 
 // Modify Function for Insert Function
 // Part of Insertion Function
@@ -431,51 +482,10 @@ void MyMap<T1,T2>::modify(Tree_node<T1,T2>* modf){
     }
 }
 
-// Insertion Function
-// It is supported by Modify Function , RR_rotation Function , LL_rotation Function.
-// Insertion -> Modification -> Rotation
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
-template<typename T1 , typename T2>
-void MyMap<T1,T2>::insert (const pair<T1,T2> & in){
-    
-    // First Node
-    if(num == 0){
-        root->key = in.first; root->value = in.second;
-        num++;
-        modify(root);
-    }
-    // Else Nodes
-    else{
 
-        // Finding location + Insertion
-        Tree_node<T1,T2>* search = root;
-        
-        while(search){
-        
-        if(search->key == in.first) return;
-
-        else if( search->key < in.first){
-            if(!search->right){ search->right = new Tree_node<T1,T2>(in.first,in.second,'R',nullptr,nullptr,search); break;}
-            search = search-> right;
-        } 
-        else if(search->key > in.first){
-            
-            if(!search->left){ search->left = new Tree_node<T1,T2> (in.first,in.second,'R',nullptr,nullptr,search); break;}
-            search = search->left;
-        }
-        
-        }
-        
-        // Num Increase
-        num++; 
-        
-        // Modification
-        if(search->left && in.first == search->left->key) modify(search->left);
-        else if(search->right && in.first == search->right->key) modify(search->right);
-
-    }
-
-}
+// << Erase >> ---------------------------------------------------------------------------------------------------------------------------
 
 
 // Erase Function
@@ -504,7 +514,8 @@ void MyMap<T1,T2>::erase (T1 out){
 
         // Delete
 
-            // Case 1 : NO Child
+        // Case 1 : NO Child
+        
             if(!search->left && !search->right){
                 
                 del_color = search->color; // color information
@@ -531,7 +542,8 @@ void MyMap<T1,T2>::erase (T1 out){
                 break;
             }
 
-            // Case 2-1 : 1 Child(left)
+        // Case 2-1 : 1 Child(left)
+        
             else if(search->left && !search->right){
 
                 replace = search->left;     // replace node
@@ -574,7 +586,8 @@ void MyMap<T1,T2>::erase (T1 out){
                 break;
             }
 
-            // Case 2-2 : 1 Child(right)
+        // Case 2-2 : 1 Child(right)
+        
             else if(!search->left && search->right){
                 
                 replace = search->right;        // replace of delete node
@@ -616,7 +629,8 @@ void MyMap<T1,T2>::erase (T1 out){
                 break;
             }
 
-            // Case 3 : 2 Child (left & right)
+        // Case 3 : 2 Child (left & right)
+
             else{
 
                 // replace node is maximum of left subtree                
@@ -661,21 +675,23 @@ template<typename T1 , typename T2>
 void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
 
-    // Delete node is left child of p
+// Delete node is left child of p
     if(LR =='L'){
     
-    // Case 1 : 
+// Case 1 :
     // p is Red 
     // s is black
     // s_l & s_r is black
     
     // << Solution >>
     // Recoloring
+
         if(p->color == 'R' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
             p->color = 'B';
             p->right->color = 'R';
         }
-    // Case 2
+
+// Case 2 :
     // p is black
     // s is black
     // s_l & s_r & black
@@ -692,7 +708,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             }
             
         }
-    // Case 3
+// Case 3 :
     // s is black
     // s_r is Red
 
@@ -728,7 +744,8 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             p->parent = s;
 
         }
-    // Case 4
+
+// Case 4 :
     // s is Black
     // s_l is Red
     
@@ -785,7 +802,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
         }
 
-    // Case 5
+// Case 5 :
     // s is Red
 
     // << Solution >>
@@ -804,13 +821,15 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 // Delete node is right child of p
     else if(LR = 'R'){
 
-    // Case 1 : Recoloring
+// Case 1 : Recoloring
+
         if(p->color == 'R' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
             p->color = 'B';
             p->left->color = 'R';
         }
 
-    // Case 2 : Recoloring + recursive
+// Case 2 : Recoloring + recursive
+
         else if(p->color =='B' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
             p->left->color = 'R';
             if(p->parent){
@@ -819,8 +838,8 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             }
         }
 
+// Case 3 : LL rotation
 
-    // Case 3 : LL rotation
         else if( (p->left && isblack(p->left)) && (p->left->left && p->left->left->color =='R') ){
             
             Tree_node<T1,T2>* s = p->left;
@@ -851,7 +870,8 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
         }
 
-    // Case 4 : LR rotation
+// Case 4 : LR rotation
+
         else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
             
             Tree_node<T1,T2>* s = p->left;
@@ -902,7 +922,9 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             p->parent = s;
 
         }
-    // Case 5 : LL rotation + recursive
+
+// Case 5 : LL rotation + recursive
+
         else if( (p->left && p->left->color=='R') ){
 
             if(p == root ) root = p->left;
@@ -913,6 +935,10 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
     }
 }
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
 
 int main(int argc, char** argv){
     
@@ -940,7 +966,7 @@ int main(int argc, char** argv){
     if(m.find(key) != m.end()){
         cout<< key << " Exists! \n";
     } else{
-        cout << key << " des not exist! \n";
+        cout << key << " does not exist! \n";
     }
 
     cout << "\n** Fifth Step **\n";
