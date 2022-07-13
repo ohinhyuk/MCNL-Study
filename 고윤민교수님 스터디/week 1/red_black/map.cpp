@@ -318,6 +318,9 @@ void MyMap<T1,T2>::modify(Tree_node<T1,T2>* modf){
                     parent->right = modf->left;
                     parent->parent = modf;
 
+                    // modf->left change
+                    if(modf->left) modf->left->parent = parent;
+
                     //child change
                     modf->left = parent;
                     modf->parent = gr_parent;
@@ -353,9 +356,13 @@ void MyMap<T1,T2>::modify(Tree_node<T1,T2>* modf){
                     // grand parent change
                     gr_parent->right = modf;
 
+
                     //parent change
                     parent->left = modf->right;
                     parent->parent = modf;
+
+                    //modf->right change
+                    if(modf->right) modf->right->parent = parent;
 
                     //child change
                     modf->right = parent;
@@ -439,7 +446,9 @@ void MyMap<T1,T2>::print(){
         q.pop();
         
         cout << "Key : " << temp->key << " value : " << temp->value << " color :" << temp->color  ;
-        if(temp-> parent) cout <<" parent : "<<  temp->parent->key << endl;
+        if(temp-> parent) cout <<" parent : "<<  temp->parent->key ;
+        if(temp->left) cout << "Left : " << temp->left->key ;
+        if(temp->right) cout << " Right : " << temp->right->key << endl; else{cout << endl;}
 
         if(temp->left) q.push(temp->left);
         if(temp->right) q.push(temp->right);
@@ -470,16 +479,16 @@ void MyMap<T1,T2>::erase (T1 out){
                 if(search==root) delete search;
                 else{
                     del_parent = search->parent;
-
-                    if(del_parent->right == search) { del_parent->right = NULL;  LR = 'R';}
-                    else if(del_parent->left == search){ del_parent->left = NULL;  LR = 'L';}
+                    if(del_parent) cout << del_parent->key << endl;
+                    if(del_parent->right == search) { del_parent->right = nullptr;  LR = 'R';}
+                    else if(del_parent->left == search){ del_parent->left = nullptr;  LR = 'L';}
 
                     delete search;
                     
                 }
 
                 if(del_color == 'B') modify_erase(del_parent , LR);// modify 로 del_parent보내주기. LR 보내기
-
+                cout << "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ\n";
                 break;
             }
 
@@ -647,9 +656,10 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
             s->parent = s_l;
             s->color = 'R';
+            s->left = nullptr;
 
             //Case 3
-
+            cout << "Debug";
             s = s_l;
 
             // sibling color change
@@ -674,6 +684,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             if(p->right) p->right->parent = p; 
             p->parent = s;
 
+            
 
         }
     // Case 5
@@ -732,6 +743,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             if(p->left) p->left->parent = p; 
             p->parent = s;
 
+
         }
     // Case 4
         else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
@@ -755,6 +767,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
             s->parent = s_r;
             s->color = 'R';
+            s->right = nullptr;
 
             //Case 3
 
@@ -781,6 +794,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             }
             if(p->left) p->left->parent = p; 
             p->parent = s;
+            
 
         }
     // Case 5
@@ -797,42 +811,42 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
 int main(int argc, char** argv){
     
-    MyMap <string,int> m;
+    MyMap <int,string> m;
     
-    cout << "** First Step **\n";
-    m.insert(make_pair("Global",10));
-    m.insert(make_pair("Handong",30));
-    m.insert(make_pair("CSEE",20));
-    m.insert(make_pair("MCNL",15));
-    print_map(m);
+    // cout << "** First Step **\n";
+    // m.insert(make_pair("Global",10));
+    // m.insert(make_pair("Handong",30));
+    // m.insert(make_pair("CSEE",20));
+    // m.insert(make_pair("MCNL",15));
+    // print_map(m);
 
-    cout << "\n** Second Step ** \n";
-    m["Pohang"] = 50;
-    m["Korea"] = 60;
-    print_map(m);
+    // cout << "\n** Second Step ** \n";
+    // m["Pohang"] = 50;
+    // m["Korea"] = 60;
+    // print_map(m);
 
-    cout << "\n** Third Step ** \n";
-    m["CSEE"] = 100;
-    m.erase("Global");
-    print_map(m);
+    // cout << "\n** Third Step ** \n";
+    // m["CSEE"] = 100;
+    // m.erase("Global");
+    // print_map(m);
 
-    cout << "\n** Fourth Step **\n";
-    string key = "MCNL";
-    if(m.find(key) != m.end()){
-        cout<< key << " Exists! \n";
-    } else{
-        cout << key << " des not exist! \n";
-    }
+    // cout << "\n** Fourth Step **\n";
+    // string key = "MCNL";
+    // if(m.find(key) != m.end()){
+    //     cout<< key << " Exists! \n";
+    // } else{
+    //     cout << key << " des not exist! \n";
+    // }
 
-    cout << "\n** Fifth Step **\n";
-    key = "Yunmin";
-    if (m.find(key) != m.end()){
-        cout << key << " Exists! \n";
-    } else{
-        cout << key << " does not exist! \n";
-    }
+    // cout << "\n** Fifth Step **\n";
+    // key = "Yunmin";
+    // if (m.find(key) != m.end()){
+    //     cout << key << " Exists! \n";
+    // } else{
+    //     cout << key << " does not exist! \n";
+    // }
 
-    return 0;
+    // return 0;
     // my.insert(make_pair(10,"AA" ));
     // my.insert(make_pair(20,"AA"));
     // my.insert(make_pair(30 ,"AA"));
@@ -859,22 +873,35 @@ int main(int argc, char** argv){
 
     // print_map();
 
-    // m.insert(make_pair(1,"A"));
-    // m.insert(make_pair(2,"A"));
-    // m.insert(make_pair(3,"A"));
-    // m.insert(make_pair(4,"A"));
-    // m.insert(make_pair(5,"A"));
-    // m.insert(make_pair(6,"A"));
-    // m.insert(make_pair(7,"A"));
-    // m.insert(make_pair(8,"A"));
-    // m.insert(make_pair(9,"A"));
-    // m.insert(make_pair(10,"A"));
-
-    // m.print();
-    // m.erase(7);
-    // m.erase(6);
-    // m.erase(9);
+    m.insert(make_pair(1,"A"));
+    m.insert(make_pair(2,"A"));
+    m.insert(make_pair(3,"A"));
+    m.insert(make_pair(4,"A"));
+    m.insert(make_pair(5,"A"));
+    m.insert(make_pair(6,"A"));
+    m.insert(make_pair(7,"A"));
+    m.insert(make_pair(8,"A"));
+    m.insert(make_pair(9,"A"));
+    m.insert(make_pair(10,"A"));
+    m.insert(make_pair(20,"A"));
+    m.insert(make_pair(19,"A"));
+    m.insert(make_pair(18,"A"));
+    m.insert(make_pair(17,"A"));
+    m.insert(make_pair(16,"A"));
+    m.insert(make_pair(15,"A"));
+    m.insert(make_pair(14,"A"));
+    m.insert(make_pair(13,"A"));
+    m.insert(make_pair(12,"A"));
+    m.insert(make_pair(11,"A"));
     
+    m.erase(17);
+    m.erase(6);
+    m.erase(9);
+    m.erase(13);
+    m.erase(1);
+    m.erase(8);
+    m.erase(14);
+    m.print();
     // m.erase(10);
     // m.erase(7);
     // m.print();

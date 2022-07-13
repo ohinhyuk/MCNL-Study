@@ -773,6 +773,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
             s->parent = s_l;
             s->color = 'R';
+            s->left = nullptr;
 
             // Step 2 : RR rotation(Case 3)
 
@@ -894,6 +895,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
             s->parent = s_r;
             s->color = 'R';
+            s->right = nullptr;
 
         // Step 2 : LL rotate(Case 3)
 
@@ -976,6 +978,7 @@ int main(int argc, char** argv){
     } else{
         cout << key << " does not exist! \n";
     }
+
 
     return 0;
     
