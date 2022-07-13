@@ -29,7 +29,7 @@ I Used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 */
 
 #include <iostream>
-//#include <queue>
+#include <queue>
 
 using namespace std;
 
@@ -166,7 +166,7 @@ public:
     void insert(const pair<T1,T2> & in);
     void erase(T1 out);
     void modify(Tree_node<T1,T2>* modf);
-    
+    void modify_erase(Tree_node<T1,T2>* p, char LR);
     
     // Iterator for MyMap and it's Functions.
     
@@ -196,8 +196,8 @@ public:
         return end();
     }
 
-    // void print(Tree_node<T1,T2>* temp);
-    // void print();
+    void print(Tree_node<T1,T2>* temp);
+    void print();
 
 };
 
@@ -233,7 +233,10 @@ void LL_Rotation(Tree_node<T1,T2>* node){
     node->color = 'B';
     node->right = node->parent;
     node-> parent = node->parent->parent;
-    if(node->parent) node->parent->left = node;
+    if(node->parent){
+        if(node->parent->right == node->right) node->parent->right = node;
+        if(node->parent->left == node->right) node->parent->left = node;
+    } 
 
     //grand parent change(rest part)
     node->right->parent = node;
@@ -258,7 +261,10 @@ void RR_Rotation(Tree_node<T1,T2>* node){
     node->color = 'B';
     node->left = node->parent;
     node-> parent = node->parent->parent;
-    if(node->parent) node->parent->right = node;
+    if(node->parent){
+        if(node->parent->right == node->left) node->parent->right = node;
+        if(node->parent->left == node->left) node->parent->left = node;
+    } 
     
     
     //grand parent change(rest part)
@@ -412,50 +418,382 @@ void MyMap<T1,T2>::insert (const pair<T1,T2> & in){
 // Erase Function
 
 template<typename T1 , typename T2>
-void MyMap<T1,T2>::erase (T1 out){
+void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
 
+    if(!temp) return;
+    
+    print(temp->left);
+    cout << temp->key << temp->value << endl;
+    print(temp->right);
+    
+}
+template<typename T1 , typename T2>
+void MyMap<T1,T2>::print(){
+    Tree_node<T1,T2>* temp;
+    queue<Tree_node<T1,T2>*> q;
+    
+    q.push(root);
+ 
+    while(!q.empty()){
+        temp = q.front();
+        q.pop();
+        
+        cout << "Key : " << temp->key << " value : " << temp->value << " color :" << temp->color  ;
+        if(temp-> parent) cout <<" parent : "<<  temp->parent->key << endl;
+
+        if(temp->left) q.push(temp->left);
+        if(temp->right) q.push(temp->right);
+    }
+
+    // print(root);
 }
 
-// template <typename T1, typename T2>
-// void MyMap<T1,T2>:: print(){
-    
-//     map->left.print();
-//     //cout <<;
-//     map->right.print();
-// }
+// Erase Function
 
+template<typename T1 , typename T2>
+void MyMap<T1,T2>::erase (T1 out){
+     Tree_node<T1,T2>* search = root;
+    Tree_node<T1,T2>* replace;
+    Tree_node<T1,T2>* del_parent;
+    char del_color;
 
-// template<typename T1 , typename T2>
-// void MyMap<T1,T2>::print(Tree_node<T1,T2>* temp){
+    char LR;
 
-//     if(!temp) return;
-    
-//     print(temp->left);
-//     cout << temp->key << temp->value << endl;
-//     print(temp->right);
-    
-// }
-// template<typename T1 , typename T2>
-// void MyMap<T1,T2>::print(){
-//     Tree_node<T1,T2>* temp;
-//     queue<Tree_node<T1,T2>*> q;
-    
-//     q.push(root);
- 
-//     while(!q.empty()){
-//         temp = q.front();
-//         q.pop();
+    while(search){
+        if(out > search->key) search = search->right;
         
-//         cout << temp->key << "  " << temp->value << " " << temp->color << endl;
-//         if(temp-> parent) cout <<"parent : "<<  temp->parent->key << endl;
+        else if(out < search->key) search = search->left;
+    
+        else{
+            if(!search->left && !search->right){
+                del_color = search->color;
+                if(search==root) delete search;
+                else{
+                    del_parent = search->parent;
 
-//         if(temp->left) q.push(temp->left);
-//         if(temp->right) q.push(temp->right);
-//     }
+                    if(del_parent->right == search) { del_parent->right = NULL;  LR = 'R';}
+                    else if(del_parent->left == search){ del_parent->left = NULL;  LR = 'L';}
 
-//     // print(root);
-// }
+                    delete search;
+                    
+                }
 
+                if(del_color == 'B') modify_erase(del_parent , LR);// modify 로 del_parent보내주기. LR 보내기
+
+                break;
+            }
+
+            else if(search->left && !search->right){
+                
+                replace = search->left;
+                del_color = search->color;
+
+                if(search==root){
+                    root = replace;
+                    root->parent = nullptr;
+                    delete search;
+                }
+                else{
+                    del_parent = search->parent;
+
+                    if(del_parent->left == search) {del_parent->left = replace; LR = 'L';}
+                    else if(del_parent->right == search) {del_parent-> right = replace;  LR ='R';}
+
+                    replace->parent = search->parent;
+
+                    delete search;
+                }
+
+                if(del_color == 'B'){
+                    if(replace->color =='R') replace->color = 'B';
+                    
+
+                    else if(replace->color == 'B') modify_erase(del_parent , LR);
+                        // modify로 del_parent 보내주기 LR 보내기
+                    
+                }
+
+                break;
+            }
+            else if(!search->left && search->right){
+
+                replace = search->right;
+                del_color = search->color;
+
+                if(search==root){
+                    root = replace;
+                    root->parent = nullptr;
+                    delete search;
+                }
+                else{
+                    del_parent = search->parent;
+
+                    if(del_parent->left == search){ del_parent->left = replace;  LR = 'L';} 
+                    else if(del_parent->right == search){ del_parent->right = replace; LR = 'R';} 
+
+                    replace->parent = search->parent;
+
+                    delete search;
+                }
+
+                if(del_color == 'B'){
+                    if(replace->color =='R') replace->color ='B';
+                    else if(replace ->color == 'B') modify_erase(del_parent , LR);
+                        //modify로 del_parent 보내주기 LR 보내기
+                    
+                }
+
+                break;
+            }
+
+
+            else{
+                replace = search->right;
+
+                while(replace->left) replace = replace->left;
+                
+                T1 key_temp = replace->key;
+                T2 value_temp = replace->value;
+                
+                erase(replace->key);
+                
+                // cout << key_temp << value_temp;
+
+                search->key = key_temp;
+                search->value = value_temp;
+
+            }
+
+        }
+    }
+}
+
+template<typename T1, typename T2>
+bool isblack(Tree_node<T1,T2>* node){
+    return (!node || (node && node->color =='B') );
+}
+
+template<typename T1 , typename T2>
+void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
+
+
+    if(LR =='L'){
+
+        
+    // Case 1
+        if(p->color == 'R' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
+            p->color = 'B';
+            p->right->color = 'R';
+        }
+    // Case 2
+        else if(p->color =='B' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
+            p->right->color = 'R';
+            if(p->parent){
+                if(p->parent->left && p->parent->left == p) modify_erase(p->parent, 'L');
+                else if(p->parent->right && p->parent->right == p) modify_erase(p->parent, 'R');
+            }
+            
+        }
+    // Case 3
+        else if( (p->right && isblack(p->right)) && (p->right->right && !isblack(p->right->right)) ){
+            
+            // RR rotation 변형시켜서
+            Tree_node<T1,T2>* s = p->right;
+            
+            if(p == root) root = s;
+
+            // sibling color change
+            s->color = p->color;
+
+            // parent change
+            p->right = s->left;
+            p->color = 'B';
+
+            // sibling change
+            s->parent = p->parent;
+            s->left = p;
+
+            // sibling -> right change
+            s->right->color = 'B';
+
+            // rest change
+            if(root != s){
+                if(s->parent->left == p) s->parent->left = s;
+                else if( s->parent->right == p) s->parent->right = s;
+            }
+            if(p->right) p->right->parent = p; 
+            p->parent = s;
+
+        }
+    // Case 4
+        else if( (p->right && isblack(p->right)) && (p->right->left && p->right->left->color =='R') ){
+            // RL rotation 변형
+            
+
+            Tree_node<T1,T2>* s = p->right;
+            Tree_node<T1,T2>* s_l = s->left;
+
+            if(p == root) root = s_l;
+
+            // parent change
+            p->right = s_l;
+
+            // left of sibling change
+            s_l->parent = s->parent;
+            s_l->color = 'B';
+            s_l->right = s;
+
+            // sibling change
+
+            s->parent = s_l;
+            s->color = 'R';
+
+            //Case 3
+
+            s = s_l;
+
+            // sibling color change
+            s->color = p->color;
+
+            // parent change
+            p->right = s->left;
+            p->color = 'B';
+
+            // sibling change
+            s->parent = p->parent;
+            s->left = p;
+
+            // sibling -> right change
+            s->right->color = 'B';
+
+            // rest change
+            if(root != s){
+                if(s->parent->left == p) s->parent->left = s;
+                else if( s->parent->right == p) s->parent->right = s;
+            }
+            if(p->right) p->right->parent = p; 
+            p->parent = s;
+
+
+        }
+    // Case 5
+        else if( (p->right && p->right->color=='R') ){
+            // RR rotation 맞나?
+            
+            if(p == root) root = p->right;
+
+            RR_Rotation(p->right);
+            modify_erase(p,'L');
+        }
+
+    }
+    // 대칭
+    else if(LR = 'R'){
+
+    // Case 1
+        if(p->color == 'R' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
+            p->color = 'B';
+            p->left->color = 'R';
+        }
+    // Case 2
+        else if(p->color =='B' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
+            p->left->color = 'R';
+            if(p->parent){
+                if(p->parent->left && p->parent->left == p) modify_erase(p->parent, 'L');
+                else if(p->parent->right && p->parent->right == p) modify_erase(p->parent, 'R');
+            }
+        }
+    // Case 3
+        else if( (p->left && isblack(p->left)) && (p->left->left && p->left->left->color =='R') ){
+            // RR rotation 변형시켜서
+            Tree_node<T1,T2>* s = p->left;
+            
+            if(p==root) root = s;
+
+            // sibling color change
+            s->color = p->color;
+
+            // parent change
+            p->left = s->right;
+            p->color = 'B';
+
+            // sibling change
+            s->parent = p->parent;
+            s->right = p;
+
+            // sibling -> right change
+            s->left->color = 'B';
+
+            // rest change
+            if(root != s){
+                if(s->parent->left == p) s->parent->left = s;
+                else if( s->parent->right == p) s->parent->right = s;
+            }
+            if(p->left) p->left->parent = p; 
+            p->parent = s;
+
+        }
+    // Case 4
+        else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
+            // RL rotation 변형
+            
+
+            Tree_node<T1,T2>* s = p->left;
+            Tree_node<T1,T2>* s_r = s->right;
+
+            if(p == root) root = s_r;
+
+            // parent change
+            p->left = s_r;
+
+            // left of sibling change
+            s_r->parent = s->parent;
+            s_r->color = 'B';
+            s_r->right = s;
+
+            // sibling change
+
+            s->parent = s_r;
+            s->color = 'R';
+
+            //Case 3
+
+            s = s_r;
+
+            // sibling color change
+            s->color = p->color;
+
+            // parent change
+            p->left = s->right;
+            p->color = 'B';
+
+            // sibling change
+            s->parent = p->parent;
+            s->right = p;
+
+            // sibling -> right change
+            s->left->color = 'B';
+
+            // rest change
+            if(root != s){
+                if(s->parent->left == p) s->parent->left = s;
+                else if( s->parent->right == p) s->parent->right = s;
+            }
+            if(p->left) p->left->parent = p; 
+            p->parent = s;
+
+        }
+    // Case 5
+        else if( (p->left && p->left->color=='R') ){
+
+            if(p == root ) root = p->left;
+            // RR rotation 맞나?
+            LL_Rotation(p->left);
+            modify_erase(p,'R');
+        }
+
+    }
+}
 
 int main(int argc, char** argv){
     
@@ -521,4 +859,23 @@ int main(int argc, char** argv){
 
     // print_map();
 
+    // m.insert(make_pair(1,"A"));
+    // m.insert(make_pair(2,"A"));
+    // m.insert(make_pair(3,"A"));
+    // m.insert(make_pair(4,"A"));
+    // m.insert(make_pair(5,"A"));
+    // m.insert(make_pair(6,"A"));
+    // m.insert(make_pair(7,"A"));
+    // m.insert(make_pair(8,"A"));
+    // m.insert(make_pair(9,"A"));
+    // m.insert(make_pair(10,"A"));
+
+    // m.print();
+    // m.erase(7);
+    // m.erase(6);
+    // m.erase(9);
+    
+    // m.erase(10);
+    // m.erase(7);
+    // m.print();
 }
