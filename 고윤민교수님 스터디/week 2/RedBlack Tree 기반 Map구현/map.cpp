@@ -502,7 +502,7 @@ void MyMap<T1,T2>::erase (T1 out){
         // Found
         else{
 
-            // Delete
+        // Delete
 
             // Case 1 : NO Child
             if(!search->left && !search->right){
@@ -647,18 +647,43 @@ bool isblack(Tree_node<T1,T2>* node){
     return (!node || (node && node->color =='B') );
 }
 
+// Modify_Erase Function
+// recoloring Nodes and modifying Tree After Delete
+// p : parent of delete node
+// s : sibling of delete node
+// s_l : left child of sibling
+// s_r : right child of sibling
+
+// if LR is 'L' -> There are 5 cases
+// if LR is 'R' -> There are 5 cases (Symmetric to the case above)
+
 template<typename T1 , typename T2>
 void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
+
     // Delete node is left child of p
     if(LR =='L'){
-        
-    // Case 1
+    
+    // Case 1 : 
+    // p is Red 
+    // s is black
+    // s_l & s_r is black
+    
+    // << Solution >>
+    // Recoloring
         if(p->color == 'R' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
             p->color = 'B';
             p->right->color = 'R';
         }
     // Case 2
+    // p is black
+    // s is black
+    // s_l & s_r & black
+
+    // << Solution >>
+    // Recoloring
+    // recursive
+
         else if(p->color =='B' && (p->right && isblack(p->right)) && isblack(p->right->left) && isblack(p->right->right) ){
             p->right->color = 'R';
             if(p->parent){
@@ -668,12 +693,17 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             
         }
     // Case 3
+    // s is black
+    // s_r is Red
+
+    // << Solution >>
+    // RR rotation + Recoloring
+
         else if( (p->right && isblack(p->right)) && (p->right->right && !isblack(p->right->right)) ){
             
-            // RR rotation 변형시켜서
             Tree_node<T1,T2>* s = p->right;
             
-            if(p == root) root = s;
+            if(p == root) root = s; // if p is root , root change
 
             // sibling color change
             s->color = p->color;
@@ -699,14 +729,20 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
 
         }
     // Case 4
-        else if( (p->right && isblack(p->right)) && (p->right->left && p->right->left->color =='R') ){
-            // RL rotation 변형
-            
+    // s is Black
+    // s_l is Red
+    
+    // << Solution >>
+    // RL rotation + Recoloring
 
+        else if( (p->right && isblack(p->right)) && (p->right->left && p->right->left->color =='R') ){
+            
             Tree_node<T1,T2>* s = p->right;
             Tree_node<T1,T2>* s_l = s->left;
 
-            if(p == root) root = s_l;
+            if(p == root) root = s_l; // if p is root , root change
+
+            // Step 1 : rotate to right
 
             // parent change
             p->right = s_l;
@@ -721,7 +757,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             s->parent = s_l;
             s->color = 'R';
 
-            //Case 3
+            // Step 2 : RR rotation(Case 3)
 
             s = s_l;
 
@@ -747,11 +783,15 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             if(p->right) p->right->parent = p; 
             p->parent = s;
 
-
         }
+
     // Case 5
+    // s is Red
+
+    // << Solution >>
+    // RR rotation + Recursive
+    
         else if( (p->right && p->right->color=='R') ){
-            // RR rotation 맞나?
             
             if(p == root) root = p->right;
 
@@ -760,15 +800,17 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
         }
 
     }
-    // 대칭
+    
+// Delete node is right child of p
     else if(LR = 'R'){
 
-    // Case 1
+    // Case 1 : Recoloring
         if(p->color == 'R' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
             p->color = 'B';
             p->left->color = 'R';
         }
-    // Case 2
+
+    // Case 2 : Recoloring + recursive
         else if(p->color =='B' && (p->left && isblack(p->left)) && isblack(p->left->left) && isblack(p->left->right) ){
             p->left->color = 'R';
             if(p->parent){
@@ -776,9 +818,11 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
                 else if(p->parent->right && p->parent->right == p) modify_erase(p->parent, 'R');
             }
         }
-    // Case 3
+
+
+    // Case 3 : LL rotation
         else if( (p->left && isblack(p->left)) && (p->left->left && p->left->left->color =='R') ){
-            // RR rotation 변형시켜서
+            
             Tree_node<T1,T2>* s = p->left;
             
             if(p==root) root = s;
@@ -806,15 +850,17 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             p->parent = s;
 
         }
-    // Case 4
-        else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
-            // RL rotation 변형
-            
 
+    // Case 4 : LR rotation
+        else if( (p->left && isblack(p->left)) && (p->left->right && p->left->right->color =='R') ){
+            
             Tree_node<T1,T2>* s = p->left;
             Tree_node<T1,T2>* s_r = s->right;
 
             if(p == root) root = s_r;
+
+
+        // Step 1 : rotate to left
 
             // parent change
             p->left = s_r;
@@ -829,7 +875,7 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             s->parent = s_r;
             s->color = 'R';
 
-            //Case 3
+        // Step 2 : LL rotate(Case 3)
 
             s = s_r;
 
@@ -856,11 +902,11 @@ void MyMap<T1,T2>::modify_erase(Tree_node<T1,T2>* p, char LR){
             p->parent = s;
 
         }
-    // Case 5
+    // Case 5 : LL rotation + recursive
         else if( (p->left && p->left->color=='R') ){
 
             if(p == root ) root = p->left;
-            // RR rotation 맞나?
+            
             LL_Rotation(p->left);
             modify_erase(p,'R');
         }
@@ -906,49 +952,5 @@ int main(int argc, char** argv){
     }
 
     return 0;
-    // my.insert(make_pair(10,"AA" ));
-    // my.insert(make_pair(20,"AA"));
-    // my.insert(make_pair(30 ,"AA"));
-    // my.insert(make_pair(40,"AA" ));
-    // my.insert(make_pair(50,"AA"));
-    // my.insert(make_pair(60 ,"AA"));
-    // my.insert(make_pair(70,"AA" ));
-    // my.insert(make_pair(80,"AA"));
-    // my.insert(make_pair(90 ,"AA"));
-    // my.insert(make_pair(100,"AA" ));
-    // my.insert(make_pair(15,"AA"));
-    // my.insert(make_pair(25 ,"AA"));
-    // my.insert(make_pair(35,"AA" ));
-    // my.insert(make_pair(45,"AA"));
-    // my.insert(make_pair(55 ,"AA"));
-    // my.insert(make_pair(65,"AA"));
-    // my.insert(make_pair(75 ,"AA"));
-    // my.insert(make_pair(85,"AA" ));
-    // my.insert(make_pair(95,"AA"));
     
-    // my["AB"]= 20;
-    // my["AA"]= 100;
-    // MyMap<int,string>::iterator iter;
-
-    // print_map();
-
-    // m.insert(make_pair(1,"A"));
-    // m.insert(make_pair(2,"A"));
-    // m.insert(make_pair(3,"A"));
-    // m.insert(make_pair(4,"A"));
-    // m.insert(make_pair(5,"A"));
-    // m.insert(make_pair(6,"A"));
-    // m.insert(make_pair(7,"A"));
-    // m.insert(make_pair(8,"A"));
-    // m.insert(make_pair(9,"A"));
-    // m.insert(make_pair(10,"A"));
-
-    // m.print();
-    // m.erase(7);
-    // m.erase(6);
-    // m.erase(9);
-    
-    // m.erase(10);
-    // m.erase(7);
-    // m.print();
 }
