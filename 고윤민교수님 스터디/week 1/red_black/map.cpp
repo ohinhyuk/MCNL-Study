@@ -133,7 +133,6 @@ class MyMap{
 private:
 
     Tree_node<T1,T2>* root;     // RB Tree
-    T1 key;                     // Key
     int num;                    // size of tree
 
 public:
@@ -244,7 +243,7 @@ void MyMap<T1,T2>::print(){
         if(temp->left) q.push(temp->left);
         if(temp->right) q.push(temp->right);
     }
-
+    cout << num;
     // print(root);
 }
 
@@ -479,6 +478,7 @@ void MyMap<T1,T2>::erase (T1 out){
     
         else{
             if(!search->left && !search->right){
+                num--;
                 del_color = search->color;
                 if(search==root) delete search;
                 else{
@@ -498,6 +498,8 @@ void MyMap<T1,T2>::erase (T1 out){
 
             else if(search->left && !search->right){
                 
+                num--;
+
                 replace = search->left;
                 del_color = search->color;
 
@@ -529,6 +531,8 @@ void MyMap<T1,T2>::erase (T1 out){
                 break;
             }
             else if(!search->left && search->right){
+
+                num--;
 
                 replace = search->right;
                 del_color = search->color;

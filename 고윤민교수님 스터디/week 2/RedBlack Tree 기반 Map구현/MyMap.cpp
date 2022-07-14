@@ -60,7 +60,7 @@ struct Tree_node{
 
 
 // Iterator Class Implementation for map -------------------------------------------------------------------------------------------------
-// operator overloading : ++ , * , == , != 
+// operator overloading : ++(prefix) , * , == , != 
 
 template<typename T1, typename T2>
 class MyIterator{
@@ -137,7 +137,6 @@ class MyMap{
 private:
 
     Tree_node<T1,T2>* root;     // RB Tree
-    T1 key;                     // Key
     int num;                    // size of tree
 
 public:
@@ -573,6 +572,8 @@ void MyMap<T1,T2>::erase (T1 out){
         
             if(!search->left && !search->right){
                 
+                num--;
+
                 del_color = search->color; // color information
                 
                 if(search==root) delete search; // if root
@@ -600,6 +601,8 @@ void MyMap<T1,T2>::erase (T1 out){
         // Case 2-1 : 1 Child(left)
         
             else if(search->left && !search->right){
+
+                num--;
 
                 replace = search->left;     // replace node
                 del_color = search->color;  // color information
@@ -645,6 +648,8 @@ void MyMap<T1,T2>::erase (T1 out){
         
             else if(!search->left && search->right){
                 
+                num--;
+
                 replace = search->right;        // replace of delete node
                 del_color = search->color;      // color information
 
