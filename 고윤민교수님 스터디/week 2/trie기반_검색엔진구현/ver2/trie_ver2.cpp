@@ -17,12 +17,12 @@
 
 	Example
 
-	Search Text :		Pohang
+	Search Text :			Pohang
 
-	Result :			Busan and Pohang	3000
-						Pohang sea			2000
-						Pohang				1000
-						Popohang			 500
+	Result :			Busan and Pohang		3000
+					Pohang sea			2000
+					Pohang				1000
+					Popohang			 500
 
 
 #############################################################################################################
