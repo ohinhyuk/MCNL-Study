@@ -3,7 +3,7 @@
 #############################################################################################################
 
 	[Linux] + [C++]
-	
+
 
 	This is Related Search Machine based Trie.
 	If you put a string that you want to search, you can find maximum 10 'Related Searches'.
@@ -44,7 +44,7 @@
 using namespace std;
 
 #define ALPHA 26 // Trie for A~Z
-
+ 
 
 // Trie Struct
 
@@ -61,12 +61,6 @@ struct Trie{
 		for(int i = 0 ; i < ALPHA ; ++i) next[i] = NULL;
 		search_num = 0;
 	}
-	Trie(string s){
-		finish = false;
-		search_str = s;
-		for(int i = 0 ; i < ALPHA; ++i) next[i] = NULL;
-		search_num = 0;
-	}
 
 	// Destructor
 	~Trie(){ 
@@ -75,11 +69,11 @@ struct Trie{
 	
 	//Trie Functions
 
-	void search_n_print(map<string,string> &all_data);
-	void search_Trie(const char* key , map<string,int> &searched_map , map<string,string> &all_data);
-	void key_start(const char* key , map<string,int> & searched_map , map<string,string> &all_data);
-	void search_all_sentence( map<string,int> &searched_map,map<string,string> & all_data);
-	void insert(const char* key , int num);
+	void search_n_print();
+	void search_Trie(const char* key , map<string,int> &searched_map);
+	void key_start(const char* key , map<string,int> & searched_map);
+	void search_all_sentence( map<string,int> &searched_map);
+	void insert(const char* key , int num, string str);
 	
 		
 };
@@ -133,7 +127,7 @@ bool compare(const pair<string,int> &a , const pair<string,int> &b)
 // It Gets string from keyboard
 // It finds Related searched string from Trie.
 // Print	
-void Trie:: search_n_print(map<string,string>& all_data){
+void Trie:: search_n_print(){
 
 	map<string,int> searched_map;
 	vector<pair<string,int>> searched_vec;
@@ -175,7 +169,7 @@ void Trie:: search_n_print(map<string,string>& all_data){
 			
 			// Search
 			string str_mf = modify_str(text);
-			search_Trie(str_mf.c_str(),searched_map,all_data); // Search_Trie
+			search_Trie(str_mf.c_str(),searched_map); // Search_Trie
 	
 			// sort in descending order for search_num
 			for(auto it:searched_map) searched_vec.push_back(make_pair(it.first,it.second));
@@ -196,15 +190,15 @@ void Trie:: search_n_print(map<string,string>& all_data){
 // Search Trie Function
 
 // All Trie search for containing string 'key'
-void Trie:: search_Trie(const char* key, map<string,int>& searched_map, map<string,string>& all_data){
+void Trie:: search_Trie(const char* key, map<string,int>& searched_map){
 	if(!next || *key=='\0') return;
 	
 	int index = *key - 'A';
 
 	for(int i = 0 ; i < ALPHA; ++i){
 		if(next[i]){
-			if(i==index) next[i]->key_start(key+1,searched_map,all_data); //function
-			next[i]->search_Trie(key , searched_map,all_data);
+			if(i==index) next[i]->key_start(key+1,searched_map); //function
+			next[i]->search_Trie(key , searched_map);
 		}
 	}
 	
@@ -214,16 +208,16 @@ void Trie:: search_Trie(const char* key, map<string,int>& searched_map, map<stri
 // Key Start Function
 
 // matcing all part of string using string that corrects first char.
-void Trie:: key_start(const char* key , map<string,int> & searched_map,map<string,string> &all_data){
+void Trie:: key_start(const char* key , map<string,int> & searched_map){
 	
-	if(*key=='\0'){ search_all_sentence(searched_map,all_data);
+	if(*key=='\0'){ search_all_sentence(searched_map);
 		return;}
 
 	int index = *key - 'A';
 
 	if(!next[index]) return ;
 
-	next[index]->key_start(key+1,searched_map,all_data);
+	next[index]->key_start(key+1,searched_map);
 
 }
 
@@ -231,14 +225,14 @@ void Trie:: key_start(const char* key , map<string,int> & searched_map,map<strin
 
 // search all strings containing matched string using mathced string.
 // get origin string.
-void Trie::search_all_sentence(map<string,int> &searched_map, map<string,string> &all_data){
+void Trie::search_all_sentence(map<string,int> &searched_map){
 	if(finish){
-		searched_map.insert({ all_data.at(search_str) , search_num }); 
+		searched_map.insert({ search_str , search_num }); 
 		if(!next) return;
 	}
 	
 	for(int i = 0 ; i < ALPHA ; ++i){
-		if(next[i]) next[i]->search_all_sentence(searched_map,all_data);
+		if(next[i]) next[i]->search_all_sentence(searched_map);
 			
 	}
 
@@ -247,9 +241,10 @@ void Trie::search_all_sentence(map<string,int> &searched_map, map<string,string>
 // Insert Function
 
 // From datafile , make Trie and insert all data.
-void Trie::insert(const char* key, int num){
+void Trie::insert(const char* key, int num, string str){
 	if(*key=='\0'){
 		finish = true;
+        search_str = str;
 		search_num = num;
 		return;
 	}
@@ -257,10 +252,9 @@ void Trie::insert(const char* key, int num){
 	int index = *key - 'A';
 	
 	if(!next[index]){
-		string s = search_str + *key;
-		next[index] = new Trie(s);
+		next[index] = new Trie();
 	}
-	next[index]->insert(key+1,num);
+	next[index]->insert(key+1,num,str);
 
 }
 
@@ -273,8 +267,6 @@ void Trie::insert(const char* key, int num){
 // 4) Print
 	
 int main(int argc , char** argv){
-	
-	map<string , string> all_data;
 
 	Trie* searchMachine = new Trie();
 	
@@ -292,19 +284,16 @@ int main(int argc , char** argv){
 			int search_num = stoi(line.substr(line.rfind(',')+1));
 
 			// string modify : capital + remove space
-			string str_mf = modify_str(str_origin);
-		
-			// map to find origin string
-			all_data.insert({str_mf , str_origin});	
+			string str_mf = modify_str(str_origin);	
 			
 			// insert string(modified) in Trie
- 			searchMachine->insert(str_mf.c_str(),search_num);
+ 			searchMachine->insert(str_mf.c_str(),search_num, str_origin);
 	
 		}
 		openFile.close();
 	}
 
-	searchMachine->search_n_print(all_data);
+	searchMachine->search_n_print();
 	return 0;
 	
 }
