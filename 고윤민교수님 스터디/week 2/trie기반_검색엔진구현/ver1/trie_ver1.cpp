@@ -17,11 +17,11 @@
 
 	Example		
 
-	Search Text : 		Pohang
+	Search Text : 				Pohang
 
-	Result :			Pohang Cafe		9000
+	Result :				Pohang Cafe		9000
 						Pohang 			2000
-						Pohang Weather  1900
+						Pohang Weather  	1900
 						Pohang Sea		 300
 
 
