@@ -16,20 +16,20 @@
 #include "config.h"
 
 /* private variables */
-static char *heap;
-static char *mem_brk;
-static char *mem_max_addr;
+static char *heap;			// start point of heap
+static char *mem_brk;		// end point of heap
+static char *mem_max_addr;	// max size of heap
 
 /* 
  * mem_init - initialize the memory system model
  */
 void mem_init(void){
-	int dev_zero = open("/dev/zero", O_RDWR);
+	int dev_zero = open("/dev/zero", O_RDWR);	// using Anonymous memory
 	heap = mmap((void *)0x800000000, /* suggested start*/
-			MAX_HEAP,				/* length */
+			MAX_HEAP,				/* length : In 'config.h' , define Max_Heap 100* (1<<20) . It means 100MB  */
 			PROT_WRITE,				/* permissions */
 			MAP_PRIVATE,			/* private or shared? */
-			dev_zero,				/* fd */
+			dev_zero,				/* fd : using anonymous memory */
 			0);						/* offset (dunno) */
 	mem_max_addr = heap + MAX_HEAP;
 	mem_brk = heap;					/* heap is empty initially */
@@ -57,13 +57,13 @@ void mem_reset_brk(){
 void *mem_sbrk(int incr) {
 	char *old_brk = mem_brk;
 
-	if ( (incr < 0) || ((mem_brk + incr) > mem_max_addr)) {
+	if ( (incr < 0) || ((mem_brk + incr) > mem_max_addr)) { // failed
 		errno = ENOMEM;
 		fprintf(stderr, "ERROR: mem_sbrk failed. Ran out of memory...\n");
 		return (void *)-1;
 	}
-	mem_brk += incr;
-	return (void *)old_brk;
+	mem_brk += incr;	// heap increase
+	return (void *)old_brk;		// old heap size return
 }
 
 /*
