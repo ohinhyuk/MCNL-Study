@@ -1,6 +1,5 @@
 // 해야할 것
 // char*  -> void *
-// 32 bit 체제로 만들기 수정안한 부분있음. mm _malloc부분
 
 #include <iostream>
 
@@ -34,21 +33,22 @@ using namespace std;
 
 // Block
 
-#define HDBP(bp) (bp - WSIZE)                                               // Header Block of bp
-#define FTBP(bp) (bp + GET_SIZE(HDBP(bp)) - DSIZE)                          // Footer Block of bp
+#define HDBP(bp) ((char *)bp - WSIZE)                                               // Header Block of bp
+#define FTBP(bp) ((char *)bp + GET_SIZE(HDBP(bp)) - DSIZE)                          // Footer Block of bp
 
 #define NEXT_BLKP(bp) ((char*)(bp) + GET_SIZE(HDBP(bp)))                    // Next Block of bp
 #define PREV_BLRP(bp) ((char*)(bp) - GET_SIZE( (char *)(bp) - DSIZE ))      // Previous Block of bp
 
 // Free List
 
-#define GET_PREV(bp) (*(void**)bp)                                          // Prev Block Pointer of bp
-#define GET_NEXT(bp) (*(void**)(bp+WSIZE))                                  // Next Block Pointer of bp
+#define GET_PREV(bp) (*(char**)bp)                                          // Prev Block Pointer of bp
+#define GET_NEXT(bp) (*(char**)(bp+WSIZE))                                  // Next Block Pointer of bp
 
-#define PREV_A_TO_B(bp1,bp2) (*(void **)bp1 = bp2)                          // Connecting Prev BP of bp1 to Address which is pointed by bp2
-#define NEXT_A_TO_B(bp1,bp2) (*(void **)(bp1+WSIZE) = bp2)                  // Connecting Next BP of bp1 to Address which is pointed by bp2
+#define PREV_A_TO_B(bp1,bp2) (*(char **)bp1 = bp2)                          // Connecting Prev BP of bp1 to Address which is pointed by bp2  
+#define NEXT_A_TO_B(bp1,bp2) (*(char **)(bp1+WSIZE) = bp2)                  // Connecting Next BP of bp1 to Address which is pointed by bp2
 
-
+// 위를 void ** 로 해야할 지 char ** 로 해야할 지 모르겠다.
+// 위의 (*(void**) ((char*)bp1 + WSIZE)) = bp2로 해야하나?
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ char* Mymalloc::extend_heap (size_t words)
 
     size = (words % 2) ? (words +1) * WSIZE : words * WSIZE;    // Double Word (8) Alignment
 
-    if((long)(bp = mem_sbrk(size)) == -1) return NULL;
+    if((int)(bp = mem_sbrk(size)) == -1) return NULL;
 
     brk += size;                                                // End point increases
 
@@ -154,7 +154,7 @@ char* Mymalloc::mem_sbrk(int incr){
     }
     
     brk += incr;            // Heap Size increases
-    return (char*)old_brk;  // return previous brk
+    return old_brk;  // return previous brk
 }
 
 // 3) Disconnect
@@ -359,7 +359,7 @@ int Mymalloc::mm_init(){
 
 void Mymalloc::mm_free(char* bp)
 {
-    size_t size = GET_SIZE(HDBP(bp));   // block size
+    size_t size = GET_SIZE(HDBP((char *)bp));   // block size
 
     PUT(HDBP(bp),PACK(size,0));         // block header modify
     PUT(FTBP(bp),PACK(size,0));         // block footer modify
@@ -395,7 +395,7 @@ char * Mymalloc::mm_malloc(size_t size)
     if( (bp = extend_heap(asize / WSIZE)) == NULL) return NULL;
     
     place(bp,asize);
-    return bp;
+    return (char *)bp;
     
 }
 
