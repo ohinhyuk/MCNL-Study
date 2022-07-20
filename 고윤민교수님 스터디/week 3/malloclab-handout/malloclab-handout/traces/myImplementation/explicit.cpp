@@ -1,11 +1,8 @@
-// 해야할 것
-// char*  -> void *
+// Header File
 
 #include <iostream>
 
 using namespace std;
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MACRO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +125,8 @@ public :
 
 void * Mymalloc::extend_heap (size_t words)
 {
+    
+
     void *bp;
     size_t size;
     cout <<"U";
@@ -171,9 +170,12 @@ void Mymalloc::disconnect(void * bp){
         else NEXT_A_TO_B(prev, next);
     }
     if(next){
-        if(!prev) PREV_A_TO_B(next,NULL);
+        if(!prev){ PREV_A_TO_B(next,NULL); free_list = (char *)next; }
         else PREV_A_TO_B(next,prev);
     } 
+
+    PREV_A_TO_B(bp,NULL);
+    NEXT_A_TO_B(bp,NULL);
 
 }
 
@@ -186,6 +188,7 @@ void Mymalloc ::new_connect(void * bp){
     PREV_A_TO_B(free_list , bp);
     
     free_list = (char *)bp;
+
 }
 
 // 5) Coalesce
@@ -211,7 +214,7 @@ void * Mymalloc::coalesce(void *bp){
     // Case 2
     // Prev block is free block
     // Next block is allocated block
-    else if( !prev_alloc  && next_alloc){
+    else if( prev_alloc == 0  && next_alloc == 1){
 
         // Combining Block Prev block + Curr block
         size += GET_SIZE(HDBP(PREV_BLRP(bp)));
@@ -231,7 +234,7 @@ void * Mymalloc::coalesce(void *bp){
     // Case 3
     // Prev block is allocated block
     // Next block is free block
-    else if(prev_alloc && !next_alloc ) {
+    else if(prev_alloc == 1 && next_alloc == 0 ) {
 
         // Combining Block Curr block + Next block
         size += GET_SIZE( HDBP(NEXT_BLKP(bp)));
@@ -280,13 +283,16 @@ void * Mymalloc::coalesce(void *bp){
 void * Mymalloc::find_fit(size_t asize){
     void* bp;
 
-    for(bp = (void *)free_list ; GET_ALLOC(bp) != 0 ; bp = GET_NEXT(bp) ){   // Finding list
-        if(GET_SIZE(bp) < asize) continue;  // not fit
+    for(bp = (void *)free_list ; GET_ALLOC(HDBP(bp)) != 0 ; bp = GET_NEXT(bp) ){   // Finding list
+        if(GET_SIZE(HDBP(bp)) < asize) continue;  // not fit
         
-        return bp;  // Found
+        cout << "!!!"<< GET_SIZE(HDBP(bp)) << endl;
+        
     }
 
-    return nullptr;    // Not Found
+    if( GET_SIZE(HDBP(bp)) == 0) return NULL; // NOT FOUND
+
+    return bp;    // return bp
 }
 
 
@@ -302,12 +308,12 @@ void Mymalloc::place(void *bp, size_t asize){
         PUT(HDBP(bp) , PACK(asize , 1));
         PUT(FTBP(bp) , PACK(asize , 1));
         
-        bp = NEXT_BLKP(bp);
-        
-        PUT(HDBP(bp),PACK(csize-asize , 0));
-        PUT(FTBP(bp) , PACK(csize-asize , 0));
+        cout <<" THIS is : " << csize << "/" << asize << endl;
 
-        new_connect(bp);
+        PUT(HDBP(NEXT_BLKP(bp)),PACK(csize-asize , 0));
+        PUT(FTBP(NEXT_BLKP(bp)) , PACK(csize-asize , 0));
+
+        new_connect(NEXT_BLKP(bp));
 
     }   
     else{
@@ -317,9 +323,6 @@ void Mymalloc::place(void *bp, size_t asize){
 
     // 해제
     disconnect(bp);
-
-    PREV_A_TO_B(bp,NULL);
-    NEXT_A_TO_B(bp,NULL);
 
 
 }
@@ -385,7 +388,7 @@ void * Mymalloc::mm_malloc(size_t size)
 
     // Alignment - Double word ( 8bytes )
     if(size <= DSIZE) asize = 3 * DSIZE;        // IF Size is small
-    else asize = 2 * DSIZE + ((size + DSIZE -1)/DSIZE) * DSIZE;     // Other Cases
+    else asize = (2 * DSIZE) + (((size + DSIZE -1)/DSIZE) * DSIZE);     // Other Cases
     
     cout << "D";
     // Finding Free block
@@ -395,7 +398,7 @@ void * Mymalloc::mm_malloc(size_t size)
         return bp;
     }
     // If heap size is lack -> extend_heap
-    else if( (bp = extend_heap(asize / WSIZE)) == (void *)-1 ) return NULL;
+    else if( (bp = extend_heap(CHUNKSIZE / WSIZE)) == (void *)-1 ) return NULL;
     
     cout << "B";
     place(bp,asize);
@@ -406,20 +409,37 @@ void * Mymalloc::mm_malloc(size_t size)
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+// Print Function -------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// 1) print_all_block
+
 void Mymalloc::print_all_block(){
     char * search = heap;
     for(search ; GET_SIZE(HDBP(search)) != 0 ; search = NEXT_BLKP(search) ){
-        cout << "[ SIZE / ALLOC ]:" << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
+        cout << "[ SIZE / ALLOC ] :" << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
     }
 }
+
+
+// 2) print_free_block
 
 void Mymalloc::print_free_block(){
     char * search = free_list;
-    for(search ; GET_ALLOC(HDBP(search)) != 1 ; search = (char *)GET_NEXT(HDBP(search))){
-        cout << "[ SIZE / ALLOC ]:" << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
+    for(search ; GET_ALLOC(HDBP(search)) != 1 ; search = (char *)GET_NEXT(search)){
+        cout << "[ SIZE / ALLOC ] :" << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
     }
 }
 
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+// Main 
 
 int main(void){
 
@@ -427,23 +447,29 @@ int main(void){
 
     int * p;
     int * q;
-// M1.print_free_block();
-    p = (int*)M1.mm_malloc(30);
-    q = (int*)M1.mm_malloc(20);
-    M1.mm_free(p);
-    M1.mm_free(q);
+    int * z;
+    int * m;
 
-    // malloc 도 size 가 안맞음
-    // mm_ free 수정
+    m = (int*)M1.mm_malloc(30);
+    p = (int*)M1.mm_malloc(20);
+    q = (int*)M1.mm_malloc(10);
+    z = (int*)M1.mm_malloc(40);
     
+    M1.mm_malloc(50);
 
-    // M1.mm_malloc(10);
-    // M1.mm_malloc(40);
-    // M1.mm_malloc(50);
-
+    // M1.mm_free(p);
+    // M1.mm_free(q);
+    // M1.mm_free(m);
+    // M1.mm_free(z);
+    
+    cout << endl;
+    cout << "<<<<<   All Blocks   >>>>>" << endl;
+    cout << endl;
     M1.print_all_block();
-    cout << "FREE" <<endl;
-
+    
+    cout << endl;
+    cout << "<<<<<   Free List  >>>>>" << endl;
+    cout << endl;
     M1.print_free_block();
     
 }
