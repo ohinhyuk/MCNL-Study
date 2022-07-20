@@ -9,14 +9,13 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
  
-
 // Size
 
 #define WSIZE 4                     // 1 BYTE
 #define DSIZE 8                     // Double BYTE 
 #define MAX_HEAP 100 * (1<<20)      // Maximum of HEAP 100 MB
 
-#define CHUNKSIZE (1<<12)                       // 4 MB
+#define CHUNKSIZE (1<<8)                       // 4 MB
 
 // Block Size & Alloc
 
@@ -45,12 +44,8 @@ using namespace std;
 #define NEXT_A_TO_B(bp1,bp2) (*(void **)(bp1+WSIZE) = bp2)                  // Connecting Next BP of bp1 to Address which is pointed by bp2
 
 // 위를 void ** 로 해야할 지 char ** 로 해야할 지 모르겠다.
-// 위의 (*(void**) ((char*)bp1 + WSIZE)) = bp2로 해야하나?
-
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 
 
 
@@ -62,7 +57,8 @@ using namespace std;
 class Mymalloc{
 
 private :
-    char* heap ;        // Start point of Heap                        // Q2. 왜 Char*로 해주는 지. 왜 const를 써주는지
+
+    char* heap ;        // Start point of Heap                      
     char* brk;          // End point of Heap
     char* max_addr;     // Max Address of Heap
 
@@ -76,6 +72,7 @@ public :
         heap = new char [MAX_HEAP];
         brk = heap;
         max_addr = heap + MAX_HEAP;
+        
         mm_init();
     }
 
@@ -124,18 +121,17 @@ public :
 // A function that increases space of heap when it is lack.
 
 void * Mymalloc::extend_heap (size_t words)
-{
-    
+{    
 
     void *bp;
     size_t size;
-    cout <<"U";
+    
     size = (words % 2) ? (words +1) * WSIZE : words * WSIZE;    // Double Word (8) Alignment
-    cout <<"G";
+    
     if((bp = mem_sbrk(size)) == (void *) -1) return (void *)-1;
     
     // Modifying header and footer
-    
+
     PUT(HDBP(bp),PACK(size , 0));
     PUT(FTBP(bp) ,PACK(size , 0));
     PUT(HDBP(NEXT_BLKP(bp)) , PACK(0,1));  // Moving Last block
@@ -155,6 +151,9 @@ void* Mymalloc::mem_sbrk(int incr){
     }
     
     brk += incr;            // Heap Size increases
+
+
+    cout << "[ Heap Increasement ] " <<" Before : " << old_brk-heap << " Bytes " << " -> " <<" After : " << brk-heap << " Bytes " << " [ + " << incr <<" Bytes ] " << endl;
     return (void *)old_brk;  // return previous brk
 }
 
@@ -182,6 +181,7 @@ void Mymalloc::disconnect(void * bp){
 // 4) New_conncect
 // Connecting the free block pointed by bp to the free list (LIFO order)
 void Mymalloc ::new_connect(void * bp){
+
     PREV_A_TO_B(bp , NULL);
     NEXT_A_TO_B(bp,free_list);
 
@@ -200,7 +200,6 @@ void * Mymalloc::coalesce(void *bp){
     size_t prev_alloc = GET_ALLOC(HDBP(PREV_BLRP(bp)));
     size_t next_alloc = GET_ALLOC(HDBP(NEXT_BLKP(bp)));
 
-    // cout <<  "size" << GET_SIZE(HDBP(PREV_BLRP(bp)))<< GET_SIZE(HDBP(NEXT_BLKP(bp))) << endl;
     // Case 1
     // Prev & Next block are allocated blocks
     if(prev_alloc == 1 && next_alloc == 1){
@@ -220,7 +219,7 @@ void * Mymalloc::coalesce(void *bp){
         size += GET_SIZE(HDBP(PREV_BLRP(bp)));
         PUT(HDBP(PREV_BLRP(bp)),PACK(size , 0));
         PUT(FTBP(bp), PACK(size,0));
- 
+
         // prev free block disconnect
         disconnect(PREV_BLRP(bp));
 
@@ -255,7 +254,7 @@ void * Mymalloc::coalesce(void *bp){
     else{
 
         // Combining Block Prev block + Curr block + Next block
-        size += GET_SIZE(PREV_BLRP(bp)) + GET_SIZE(NEXT_BLKP(bp));
+        size += GET_SIZE(HDBP(PREV_BLRP(bp))) + GET_SIZE(HDBP(NEXT_BLKP(bp)));
         PUT( HDBP(PREV_BLRP(bp)) , PACK(size , 0));
         PUT( FTBP(NEXT_BLKP(bp)), PACK(size,0));
 
@@ -283,16 +282,11 @@ void * Mymalloc::coalesce(void *bp){
 void * Mymalloc::find_fit(size_t asize){
     void* bp;
 
-    for(bp = (void *)free_list ; GET_ALLOC(HDBP(bp)) != 0 ; bp = GET_NEXT(bp) ){   // Finding list
-        if(GET_SIZE(HDBP(bp)) < asize) continue;  // not fit
-        
-        cout << "!!!"<< GET_SIZE(HDBP(bp)) << endl;
-        
+    for(bp = (void *)free_list ; GET_ALLOC(HDBP(bp)) == 0 ; bp = GET_NEXT(bp) ){   // Finding list
+        if(GET_SIZE(HDBP(bp)) >= asize) return bp;  // fit
     }
 
-    if( GET_SIZE(HDBP(bp)) == 0) return NULL; // NOT FOUND
-
-    return bp;    // return bp
+    return nullptr;
 }
 
 
@@ -307,8 +301,6 @@ void Mymalloc::place(void *bp, size_t asize){
     if((csize - asize) >= 3 * DSIZE){
         PUT(HDBP(bp) , PACK(asize , 1));
         PUT(FTBP(bp) , PACK(asize , 1));
-        
-        cout <<" THIS is : " << csize << "/" << asize << endl;
 
         PUT(HDBP(NEXT_BLKP(bp)),PACK(csize-asize , 0));
         PUT(FTBP(NEXT_BLKP(bp)) , PACK(csize-asize , 0));
@@ -341,8 +333,10 @@ void Mymalloc::place(void *bp, size_t asize){
 
 int Mymalloc::mm_init(){
 
+    cout << "[ Heap init ] Heap is initalized. " << endl;
+
     if( ( mem_sbrk(6 * WSIZE)) == (void *)-1 ) return -1;  // Padding + Header + Prev Pointer + Next Pointer + Footer + Last Block
-    
+
     PUT(heap , 0);                                      // Padding
     PUT(heap + 1 * WSIZE , PACK( 2 * DSIZE , 1));       // Header
     PUT(heap + 2 * WSIZE, NULL);                        // Prev Pointer
@@ -360,7 +354,6 @@ int Mymalloc::mm_init(){
 }
 
 
-
 // 2) mm_free
 // Function to free the allocated block
 
@@ -368,10 +361,16 @@ void Mymalloc::mm_free(void* bp)
 {
     size_t size = GET_SIZE(HDBP(bp));   // block size
 
+    if( GET_ALLOC(HDBP(bp)) == 0 ){
+        cout << "[ Free Failed ] Pointing Memory isn't allocated. ";
+        return ;
+    } 
+
     PUT(HDBP(bp),PACK(size,0));         // block header modify
     PUT(FTBP(bp),PACK(size,0));         // block footer modify
     coalesce(bp);                       // Merge with neighboring block
 
+    cout << "[ Free Success ] " << size << " Bytes are decallocated." << endl;
 }
 
 
@@ -389,23 +388,25 @@ void * Mymalloc::mm_malloc(size_t size)
     // Alignment - Double word ( 8bytes )
     if(size <= DSIZE) asize = 3 * DSIZE;        // IF Size is small
     else asize = (2 * DSIZE) + (((size + DSIZE -1)/DSIZE) * DSIZE);     // Other Cases
-    
-    cout << "D";
+
     // Finding Free block
-    if((bp = find_fit(asize)) != NULL){
-        cout << "E";
+    if((bp = find_fit(asize)) != nullptr){
         place(bp,asize);
+
+        cout << "[ Malloc Success ] " << asize << " Bytes is allocated. " << endl;
+
         return bp;
     }
+
     // If heap size is lack -> extend_heap
-    else if( (bp = extend_heap(CHUNKSIZE / WSIZE)) == (void *)-1 ) return NULL;
+    if( (bp = extend_heap(CHUNKSIZE / WSIZE)) == (void *)-1 ) return NULL;
     
-    cout << "B";
+    cout << "[ Malloc Success ] " << asize << " Bytes is allocated. " << endl;
+
     place(bp,asize);
     return bp;
     
 }
-
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -419,8 +420,14 @@ void * Mymalloc::mm_malloc(size_t size)
 
 void Mymalloc::print_all_block(){
     char * search = heap;
+
+    
+    cout << endl;
+    cout << "<<<<<   All Blocks   >>>>>" << endl;
+    cout << endl;
+
     for(search ; GET_SIZE(HDBP(search)) != 0 ; search = NEXT_BLKP(search) ){
-        cout << "[ SIZE / ALLOC ] :" << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
+        cout << "[ SIZE / ALLOC ] : " << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
     }
 }
 
@@ -429,8 +436,14 @@ void Mymalloc::print_all_block(){
 
 void Mymalloc::print_free_block(){
     char * search = free_list;
+
+    
+    cout << endl;
+    cout << "<<<<<   Free List  >>>>>" << endl;
+    cout << endl;
+    
     for(search ; GET_ALLOC(HDBP(search)) != 1 ; search = (char *)GET_NEXT(search)){
-        cout << "[ SIZE / ALLOC ] :" << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
+        cout << "[ SIZE / ALLOC ] : " << GET_SIZE(HDBP(search)) << " / "  << GET_ALLOC(HDBP(search)) << endl;
     }
 }
 
@@ -439,7 +452,7 @@ void Mymalloc::print_free_block(){
 
 
 
-// Main 
+// Main
 
 int main(void){
 
@@ -451,25 +464,23 @@ int main(void){
     int * m;
 
     m = (int*)M1.mm_malloc(30);
-    p = (int*)M1.mm_malloc(20);
-    q = (int*)M1.mm_malloc(10);
-    z = (int*)M1.mm_malloc(40);
+    p = (int*)M1.mm_malloc(198);
     
-    M1.mm_malloc(50);
+    q = (int*)M1.mm_malloc(250);
+    // z = (int*)M1.mm_malloc(40);
+    // 
+    // M1.mm_malloc(50);
 
-    // M1.mm_free(p);
+    M1.mm_free(p);
+    M1.mm_free(q);
+    
+    q = (int*)M1.mm_malloc(250);
     // M1.mm_free(q);
     // M1.mm_free(m);
     // M1.mm_free(z);
     
-    cout << endl;
-    cout << "<<<<<   All Blocks   >>>>>" << endl;
-    cout << endl;
     M1.print_all_block();
     
-    cout << endl;
-    cout << "<<<<<   Free List  >>>>>" << endl;
-    cout << endl;
     M1.print_free_block();
     
 }
