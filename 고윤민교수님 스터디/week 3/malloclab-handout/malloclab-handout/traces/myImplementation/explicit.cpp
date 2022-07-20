@@ -483,7 +483,7 @@ void * Mymalloc::mm_realloc(void* bp ,size_t size){
     }
     // Size Decreasement
     else if(asize < GET_SIZE(HDBP(bp))){
-        size_t csize = GET_ALLOC(HDBP(bp))-asize;
+        size_t csize = GET_SIZE(HDBP(bp))-asize;
         if(csize >= DSIZE * 2){
             PUT(HDBP(bp), PACK(asize,1));
             PUT(FTBP(bp) ,PACK(asize,1));
@@ -558,20 +558,26 @@ int main(void){
     int * m;
 
     m = (int*)M1.mm_malloc(30);
-
+    m[3] = 3;
+    m[4] = 70; 
     p = (int *)M1.mm_calloc(198);
 
     // p = (int*)M1.mm_malloc(198);
     
     // q = (int*)M1.mm_malloc(250);
-    // z = (int*)M1.mm_malloc(40); 
+    z = (int*)M1.mm_malloc(40); 
+    
     // 
-    // M1.mm_malloc(50);
+    q =(int *)M1.mm_malloc(50);
+    
 
     // M1.mm_free(p);
-    // M1.mm_free(q);
     
-    // q = (int*)M1.mm_malloc(1000);
+    (int*)M1.mm_malloc(1000);
+    M1.mm_free(q);
+    m = (int *)M1.mm_realloc(m,70);
+    m = (int *)M1.mm_realloc(m,30);
+    // M1.mm_free(q);
     // M1.mm_free(q);
     // M1.mm_free(m);
     // M1.mm_free(z);
