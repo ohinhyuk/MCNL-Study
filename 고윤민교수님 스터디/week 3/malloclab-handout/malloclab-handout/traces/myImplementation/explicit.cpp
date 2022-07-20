@@ -38,10 +38,10 @@ using namespace std;
 // Free List
 
 #define GET_PREV(bp) (*(void**)bp)                                          // Prev Block Pointer of bp
-#define GET_NEXT(bp) (*(void**)(bp+WSIZE))                                  // Next Block Pointer of bp
+#define GET_NEXT(bp) (*(void**)((char *)bp+WSIZE))                                  // Next Block Pointer of bp
 
 #define PREV_A_TO_B(bp1,bp2) (*(void **)bp1 = bp2)                          // Connecting Prev BP of bp1 to Address which is pointed by bp2  
-#define NEXT_A_TO_B(bp1,bp2) (*(void **)(bp1+WSIZE) = bp2)                  // Connecting Next BP of bp1 to Address which is pointed by bp2
+#define NEXT_A_TO_B(bp1,bp2) (*(void **)((char*)bp1+WSIZE) = bp2)                  // Connecting Next BP of bp1 to Address which is pointed by bp2
 
 // 위를 void ** 로 해야할 지 char ** 로 해야할 지 모르겠다.
 
@@ -311,7 +311,6 @@ void * Mymalloc::find_fit(size_t asize){
 }
 
 
-
 // 7) place
 // If the block size is large, put the remaining block back in the free list
 
@@ -360,11 +359,12 @@ int Mymalloc::mm_init(){
 
     PUT(heap , 0);                                      // Padding
     PUT(heap + 1 * WSIZE , PACK( 2 * DSIZE , 1));       // Header
-    PUT(heap + 2 * WSIZE, NULL);                        // Prev Pointer
+    PREV_A_TO_B((heap+ 2 * WSIZE) , NULL);              // Prev Pointer
     
-    free_list = heap + (2 * WSIZE);                       // free list init
+    
+    free_list = heap + (2 * WSIZE);                     // free list init
 
-    PUT(heap + 3 * WSIZE, NULL);                        // Next Pointer
+    NEXT_A_TO_B((heap+ 2 * WSIZE) , NULL);              // Next Pointer
     PUT(heap + 4 * WSIZE , PACK( 2 * DSIZE , 1));       // Footer
     PUT(heap + 5 * WSIZE , PACK(0,1));                  // Last Block
     heap += (2 * WSIZE);                                // bp
@@ -453,9 +453,10 @@ void * Mymalloc::mm_realloc(void* bp ,size_t size){
 
     if( GET_ALLOC(HDBP(bp)) == 0) return NULL;
     
-    int bp_capa = GET_SIZE(HDBP(bp)) - DSIZE;
+    size_t before_size = GET_SIZE(HDBP(bp));
     size_t asize = DSIZE + ((size + (DSIZE -1)) / DSIZE) *DSIZE;
-    int diff = size - bp_capa;
+
+    cout << "[ Realloc Start ] Request size is " << asize <<" Bytes "  << endl;
 
     // Size Increasement
     if(asize > GET_SIZE(HDBP(bp))){
@@ -465,6 +466,10 @@ void * Mymalloc::mm_realloc(void* bp ,size_t size){
  
         if(GET_ALLOC(HDBP(NEXT_BLKP(bp))) == 0 && GET_SIZE(HDBP(NEXT_BLKP(bp))) >= asize - GET_SIZE(HDBP(bp))){
             coalesce(bp);
+            
+            
+            cout << "[ Realloc End ] "<< before_size << " Bytes -> After " << GET_SIZE(HDBP(bp)) << " Bytes  " << endl;
+            return bp;
         }
 
         // Case 2
@@ -477,6 +482,8 @@ void * Mymalloc::mm_realloc(void* bp ,size_t size){
             for(int i = 0 ; i < (GET_SIZE(HDBP(bp)) - DSIZE)/WSIZE ; ++i){
                 *((int *)new_bp+i) = *((int *)bp+i);
             }
+
+            cout << "[ Realloc End ] "<< before_size << " Bytes -> After " << GET_SIZE(HDBP(new_bp)) << " Bytes  " << endl;
 
             return new_bp;
         }
@@ -492,6 +499,8 @@ void * Mymalloc::mm_realloc(void* bp ,size_t size){
             PUT(FTBP(NEXT_BLKP(bp)) , PACK(csize,0));
 
             coalesce(NEXT_BLKP(bp));
+
+            cout << "[ Realloc End ] "<< before_size << " Bytes -> After " << GET_SIZE(HDBP(bp)) << " Bytes  " << endl;
 
             return bp;
         }
