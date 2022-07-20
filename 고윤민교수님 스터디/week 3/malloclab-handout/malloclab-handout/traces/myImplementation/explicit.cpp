@@ -33,7 +33,7 @@ using namespace std;
 #define FTBP(bp) ((char *)bp + GET_SIZE(HDBP(bp)) - DSIZE)                          // Footer Block of bp
 
 #define NEXT_BLKP(bp) ((char*)(bp) + GET_SIZE(HDBP(bp)))                    // Next Block of bp
-#define PREV_BLRP(bp) ((char*)(bp) - GET_SIZE( ((char *)(bp) - DSIZE )))      // Previous Block of bp
+#define PREV_BLKP(bp) ((char*)(bp) - GET_SIZE( ((char *)(bp) - DSIZE )))      // Previous Block of bp
 
 // Free List
 
@@ -95,6 +95,9 @@ public :
     void disconnect(void * bp);
     void new_connect(void * bp);
     
+    void * mm_calloc(size_t size);
+    void * mm_realloc(void* bp ,size_t size);
+
     // Print
     void print_all_block();
     void print_free_block();
@@ -152,8 +155,10 @@ void* Mymalloc::mem_sbrk(int incr){
     
     brk += incr;            // Heap Size increases
 
+    
+    if(old_brk == heap) cout << "[ Heap Increasement ] " <<" Before : " << old_brk-heap << " Bytes " << " -> " <<" After : " << brk-heap << " Bytes " << " [ + " << incr <<" Bytes ] " << endl;
+    else cout << "[ Heap Increasement ] " <<" Before : " << old_brk-(heap - DSIZE) << " Bytes " << " -> " <<" After : " << brk-(heap - DSIZE) << " Bytes " << " [ + " << incr <<" Bytes ] " << endl;
 
-    cout << "[ Heap Increasement ] " <<" Before : " << old_brk-heap << " Bytes " << " -> " <<" After : " << brk-heap << " Bytes " << " [ + " << incr <<" Bytes ] " << endl;
     return (void *)old_brk;  // return previous brk
 }
 
@@ -197,8 +202,24 @@ void Mymalloc ::new_connect(void * bp){
 void * Mymalloc::coalesce(void *bp){
     
     size_t size = GET_SIZE(HDBP(bp));
-    size_t prev_alloc = GET_ALLOC(HDBP(PREV_BLRP(bp)));
+    size_t prev_alloc = GET_ALLOC(HDBP(PREV_BLKP(bp)));
     size_t next_alloc = GET_ALLOC(HDBP(NEXT_BLKP(bp)));
+
+    // Case 0 (For realloc)
+    // Next block is free block
+    if(GET_ALLOC(HDBP(bp)) == 1 && next_alloc == 0){
+       
+       // Next block disconnect
+       disconnect(NEXT_BLKP(bp));
+       
+       // Combining Curr block + Next block
+       size += GET_SIZE(HDBP(NEXT_BLKP(bp)));
+       PUT(HDBP(bp) , PACK(size , 1));
+       PUT(FTBP(bp) , PACK(size , 1));
+
+
+        return bp;
+    }
 
     // Case 1
     // Prev & Next block are allocated blocks
@@ -216,15 +237,15 @@ void * Mymalloc::coalesce(void *bp){
     else if( prev_alloc == 0  && next_alloc == 1){
 
         // Combining Block Prev block + Curr block
-        size += GET_SIZE(HDBP(PREV_BLRP(bp)));
-        PUT(HDBP(PREV_BLRP(bp)),PACK(size , 0));
+        size += GET_SIZE(HDBP(PREV_BLKP(bp)));
+        PUT(HDBP(PREV_BLKP(bp)),PACK(size , 0));
         PUT(FTBP(bp), PACK(size,0));
 
         // prev free block disconnect
-        disconnect(PREV_BLRP(bp));
+        disconnect(PREV_BLKP(bp));
 
         // New Free block connect
-        bp = PREV_BLRP(bp);
+        bp = PREV_BLKP(bp);
         
         new_connect(bp);
 
@@ -235,14 +256,14 @@ void * Mymalloc::coalesce(void *bp){
     // Next block is free block
     else if(prev_alloc == 1 && next_alloc == 0 ) {
 
+        // Next free block disconnect
+        
+        disconnect(NEXT_BLKP(bp));
+
         // Combining Block Curr block + Next block
         size += GET_SIZE( HDBP(NEXT_BLKP(bp)));
         PUT(HDBP(bp), PACK(size,0));
         PUT(FTBP(bp) , PACK(size,0));
-
-        // Next free block disconnect
-        
-        disconnect(NEXT_BLKP(bp));
 
         // New Free block connect
         new_connect(bp);
@@ -254,18 +275,18 @@ void * Mymalloc::coalesce(void *bp){
     else{
 
         // Combining Block Prev block + Curr block + Next block
-        size += GET_SIZE(HDBP(PREV_BLRP(bp))) + GET_SIZE(HDBP(NEXT_BLKP(bp)));
-        PUT( HDBP(PREV_BLRP(bp)) , PACK(size , 0));
+        size += GET_SIZE(HDBP(PREV_BLKP(bp))) + GET_SIZE(HDBP(NEXT_BLKP(bp)));
+        PUT( HDBP(PREV_BLKP(bp)) , PACK(size , 0));
         PUT( FTBP(NEXT_BLKP(bp)), PACK(size,0));
 
         // Prev , Next free block disconnect
        
-        disconnect(PREV_BLRP(bp));
+        disconnect(PREV_BLKP(bp));
         disconnect(NEXT_BLKP(bp));
 
 
         // New Free block connect
-        bp = PREV_BLRP(bp);
+        bp = PREV_BLKP(bp);
 
         new_connect(bp);
 
@@ -298,12 +319,12 @@ void Mymalloc::place(void *bp, size_t asize){
 
     size_t csize = GET_SIZE(HDBP(bp));
 
-    if((csize - asize) >= 3 * DSIZE){
+    if((csize - asize) >= 2 * DSIZE){
         PUT(HDBP(bp) , PACK(asize , 1));
         PUT(FTBP(bp) , PACK(asize , 1));
 
-        PUT(HDBP(NEXT_BLKP(bp)),PACK(csize-asize , 0));
-        PUT(FTBP(NEXT_BLKP(bp)) , PACK(csize-asize , 0));
+        PUT(HDBP(NEXT_BLKP(bp)), PACK(csize-asize , 0));
+        PUT(FTBP(NEXT_BLKP(bp)), PACK(csize-asize , 0));
 
         new_connect(NEXT_BLKP(bp));
 
@@ -386,8 +407,8 @@ void * Mymalloc::mm_malloc(size_t size)
     if(size == 0) return NULL;
 
     // Alignment - Double word ( 8bytes )
-    if(size <= DSIZE) asize = 3 * DSIZE;        // IF Size is small
-    else asize = (2 * DSIZE) + (((size + DSIZE -1)/DSIZE) * DSIZE);     // Other Cases
+    if(size <= DSIZE) asize = 2 * DSIZE;        // IF Size is small
+    else asize = (1 * DSIZE) + (((size + DSIZE -1)/DSIZE) * DSIZE);     // Other Cases
 
     // Finding Free block
     if((bp = find_fit(asize)) != nullptr){
@@ -400,13 +421,86 @@ void * Mymalloc::mm_malloc(size_t size)
 
     // If heap size is lack -> extend_heap
     if( (bp = extend_heap(CHUNKSIZE / WSIZE)) == (void *)-1 ) return NULL;
-    
-    cout << "[ Malloc Success ] " << asize << " Bytes is allocated. " << endl;
 
-    place(bp,asize);
-    return bp;
+
+
+    // cout << "[ Malloc Success ] " << asize << " Bytes is allocated. " << endl;
+    
+    // place(bp,asize);
+    return mm_malloc(size);
     
 }
+
+void * Mymalloc::mm_calloc(size_t size){
+
+    void* bp;
+    if((bp = mm_malloc(size)) == NULL) return NULL;
+
+    // size_t asize;
+    
+    // Alignment - Double word ( 8bytes )
+    if(size <= DSIZE) size = DSIZE;        // IF Size is small
+    else size = ((size + DSIZE -1)/DSIZE) * DSIZE;
+
+    for(int i = 0 ; i < size/WSIZE ; ++i){
+        *((int*)bp+i) = 0x0;
+    }
+
+    return bp;
+}
+
+void * Mymalloc::mm_realloc(void* bp ,size_t size){
+
+    if( GET_ALLOC(HDBP(bp)) == 0) return NULL;
+    
+    int bp_capa = GET_SIZE(HDBP(bp)) - DSIZE;
+    size_t asize = DSIZE + ((size + (DSIZE -1)) / DSIZE) *DSIZE;
+    int diff = size - bp_capa;
+
+    // Size Increasement
+    if(asize > GET_SIZE(HDBP(bp))){
+
+        // Case 1
+        // Next block is free Block & Big enough
+ 
+        if(GET_ALLOC(HDBP(NEXT_BLKP(bp))) == 0 && GET_SIZE(HDBP(NEXT_BLKP(bp))) >= asize - GET_SIZE(HDBP(bp))){
+            coalesce(bp);
+        }
+
+        // Case 2
+        // Finding free block which is big enough
+        else {
+            mm_free(bp);
+
+            void * new_bp = mm_malloc(size);
+
+            for(int i = 0 ; i < (GET_SIZE(HDBP(bp)) - DSIZE)/WSIZE ; ++i){
+                *((int *)new_bp+i) = *((int *)bp+i);
+            }
+
+            return new_bp;
+        }
+    }
+    // Size Decreasement
+    else if(asize < GET_SIZE(HDBP(bp))){
+        size_t csize = GET_ALLOC(HDBP(bp))-asize;
+        if(csize >= DSIZE * 2){
+            PUT(HDBP(bp), PACK(asize,1));
+            PUT(FTBP(bp) ,PACK(asize,1));
+            
+            PUT(HDBP(NEXT_BLKP(bp)) , PACK(csize,0));
+            PUT(FTBP(NEXT_BLKP(bp)) , PACK(csize,0));
+
+            coalesce(NEXT_BLKP(bp));
+
+            return bp;
+        }
+    }
+}
+
+
+
+
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -464,17 +558,20 @@ int main(void){
     int * m;
 
     m = (int*)M1.mm_malloc(30);
-    p = (int*)M1.mm_malloc(198);
+
+    p = (int *)M1.mm_calloc(198);
+
+    // p = (int*)M1.mm_malloc(198);
     
-    q = (int*)M1.mm_malloc(250);
-    // z = (int*)M1.mm_malloc(40);
+    // q = (int*)M1.mm_malloc(250);
+    // z = (int*)M1.mm_malloc(40); 
     // 
     // M1.mm_malloc(50);
 
-    M1.mm_free(p);
-    M1.mm_free(q);
+    // M1.mm_free(p);
+    // M1.mm_free(q);
     
-    q = (int*)M1.mm_malloc(250);
+    // q = (int*)M1.mm_malloc(1000);
     // M1.mm_free(q);
     // M1.mm_free(m);
     // M1.mm_free(z);
@@ -482,5 +579,4 @@ int main(void){
     M1.print_all_block();
     
     M1.print_free_block();
-    
 }
