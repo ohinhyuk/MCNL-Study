@@ -664,7 +664,31 @@ int main(void){
     int * m;
 
     m = (int*)M1.mm_malloc();
+    // m[3] = 3;
+    // m[4] = 70; 
+    // p = (int *)M1.mm_calloc(198);
+
+    // p = (int*)M1.mm_malloc(198);
     
-    M1.print_all_block(); 
+    // q = (int*)M1.mm_malloc(250);
+    // z = (int*)M1.mm_malloc(40); 
+    
+    // 
+    // q =(int *)M1.mm_malloc(50);
+    
+
+    // M1.mm_free(p);
+    
+    // (int*)M1.mm_malloc(1000);
+    // M1.mm_free(q);
+    // m = (int *)M1.mm_realloc(m,70);
+    // m = (int *)M1.mm_realloc(m,30);
+    // M1.mm_free(q);
+    // M1.mm_free(q);
+    // M1.mm_free(m);
+    // M1.mm_free(z);
+    
+    M1.print_all_block();
+    
     M1.print_free_block();
 }
