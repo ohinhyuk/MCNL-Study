@@ -1,6 +1,6 @@
 /**
  * @file Implicit_allocator.cpp
- * @author Oh Inhyuk ( 8156217@naver.com )
+ * @author Oh Inhyuk (8156217@naver.com)
  * @brief This is simple implementation of Implicit allocator for Dynamic allocation in Java / Lisp
  *        This Code has malloc Functions ( malloc , calloc , realloc , free )
  * @version 0.1
@@ -229,7 +229,7 @@ void Mymalloc::place(char *bp, size_t asize){
     if((csize - asize) >= 2 * DSIZE){
         PUT(HDRP(bp) , PACK(asize , 1));
         PUT(FTRP(bp) , PACK(asize , 1));
-
+        
         PUT(HDRP(NEXT_BLKP(bp)),PACK(csize-asize , 0));
         PUT(FTRP(NEXT_BLKP(bp)) , PACK(csize-asize , 0));
     }   
