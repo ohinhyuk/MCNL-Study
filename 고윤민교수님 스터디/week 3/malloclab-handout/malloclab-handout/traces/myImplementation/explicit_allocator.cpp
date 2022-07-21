@@ -1,5 +1,5 @@
 /**
- * @file explicit_allocator.cpp
+ * @file Explicit_allocator.cpp
  * @author Oh InHyuk ( 8156217@naver.com )
  * @brief This is simple implementation of explicit allocator for Dynamic allocation in C / C++
  *        It uses free list ( doubly linked list ) for Free block management
@@ -445,7 +445,8 @@ void Mymalloc::mm_init(){
 
 
 /**
- * @brief Free function to deallocate allocated block
+ * @brief Free Implementation
+ * Free function to deallocate allocated block
  * 
  * @param bp : Pointer which is pointing allocated block
  */
@@ -468,7 +469,8 @@ void Mymalloc::mm_free(void* bp)
 
 
 /**
- * @brief Memory allocation Function
+ * @brief Malloc Implementation
+ * Memory allocation Function
  * 
  * @param size : Size of allocation
  * @return void* : Pointer which is pointing allocated memory
@@ -503,7 +505,8 @@ void * Mymalloc::mm_malloc(size_t size)
 
 
 /**
- * @brief Memory allocation + initalization ( Zero )
+ * @brief Calloc Implementation
+ * Memory allocation + initalization to zero
  * 
  * @param size : Size of allocation
  * @return void* : Pointer which is pointing allocated memory
@@ -512,8 +515,6 @@ void * Mymalloc::mm_calloc(size_t size){
 
     void* bp;
     if((bp = mm_malloc(size)) == NULL) return NULL;
-
-    // size_t asize;
     
     // Alignment - Double word ( 8bytes )
     if(size <= DSIZE) size = DSIZE;        // IF Size is small
@@ -528,7 +529,8 @@ void * Mymalloc::mm_calloc(size_t size){
 
 
 /**
- * @brief Resizing allocated memory
+ * @brief Realloc Implementation
+ * Resizing allocated memory
  * 
  * @param bp : Pointer which is pointing allocated memory
  * @param size : Resizing size
@@ -536,7 +538,7 @@ void * Mymalloc::mm_calloc(size_t size){
  */
 void * Mymalloc::mm_realloc(void* bp ,size_t size){
 
-    if( GET_ALLOC(HDBP(bp)) == 0) return NULL;
+    if( GET_ALLOC(HDBP(bp)) == 0 || size <= 0) return NULL;
     
     size_t before_size = GET_SIZE(HDBP(bp));
     size_t asize = DSIZE + ((size + (DSIZE -1)) / DSIZE) *DSIZE;
@@ -596,8 +598,6 @@ void * Mymalloc::mm_realloc(void* bp ,size_t size){
         }
     }
 }
-
-
 
 
 
@@ -663,7 +663,7 @@ int main(void){
     int * z;
     int * m;
 
-    m = (int*)M1.mm_malloc();
+    m = (int*)M1.mm_malloc(10);
     // m[3] = 3;
     // m[4] = 70; 
     // p = (int *)M1.mm_calloc(198);
