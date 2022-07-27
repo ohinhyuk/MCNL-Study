@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 	if(hServSock==INVALID_SOCKET)
 		ErrorHandling("socket() error");
   
+  
 	memset(&servAddr, 0, sizeof(servAddr));
 	servAddr.sin_family=AF_INET;
 	servAddr.sin_addr.s_addr=htonl(INADDR_ANY);
