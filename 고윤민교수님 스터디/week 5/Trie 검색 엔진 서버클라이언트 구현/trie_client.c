@@ -24,7 +24,7 @@
 // Macro
 #define BUF_SIZE 1024 	// buffer size macro
 #define C_GREN "\033[0;32m"
-#define C_ORGE "\033[0;34m"
+#define C_YELW "\033[0;33m"
 
 
 /**
@@ -87,7 +87,7 @@ int main(int argc, char** argv){
 		error_handling("connect() error");
 	
 	// Print
-	printf("%s Search Word: ", C_GREN);					
+	printf("%s Search Word: ", C_YELW);					
 	fgets(search_word , BUF_SIZE , stdin);					// Search word (Input)
 	fputs("------------------------------\n",stdout);
 
@@ -102,7 +102,7 @@ int main(int argc, char** argv){
 
 	// Print
 	for(int i = 0 ; i < searched_struct.num; ++i){
-		printf("%s %s %d\n", C_ORGE ,searched_struct.searched_str[i],searched_struct.searched_num[i]);
+		printf("%s %s %d\n", C_GREN ,searched_struct.searched_str[i],searched_struct.searched_num[i]);
 	}
 
 	// close

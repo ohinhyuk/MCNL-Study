@@ -224,7 +224,7 @@ vector<pair<string,int>> Trie:: trie_total(char * given_str, char * filename){
     if(searched_vec.size() > 10) searched_vec.resize(10);
 	
 
-	printf("Searching Complement\n")
+	printf("Searching Complement\n");
 
     return searched_vec;
 
