@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char** argv){
 
-    vector<long long int> use;
+    vector<int> use;
     vector<long long int> deadline;
 
     long long int N, temp;
