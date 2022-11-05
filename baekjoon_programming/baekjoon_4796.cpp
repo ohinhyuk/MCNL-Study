@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 
         while(V > P){
             V -= P;
-            cnt += L;
+            cnt += L; 
         }
 
         if(V >= L){
