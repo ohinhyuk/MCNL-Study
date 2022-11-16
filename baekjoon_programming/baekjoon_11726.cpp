@@ -18,7 +18,7 @@ int main(int argc , char** argv){
     }
 
 
-    long long int tile_case[n+1];
+    long long int  tile_case[n+1];
 
     tile_case[1] = 1;
     tile_case[2] = 2;
@@ -27,7 +27,7 @@ int main(int argc , char** argv){
         tile_case[i] = tile_case[i-1] + tile_case[i-2];
     }
 
-    cout << tile_case[n];
+    cout << tile_case[n] % 10007;
 
 
 }
