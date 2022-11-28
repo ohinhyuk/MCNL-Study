@@ -1,0 +1,51 @@
+Implement a simple Bayesian Spam filter and determine if each email in 'test' folder is spam or ham.
+- In 'train' folder, two files contain 100 spam and 100 non-spam messages.
+- In 'test' folder, two files contain 20 spam and 20 non-spam messages.
+- We want to classify 40 emails in 'test' folder based on the emails in 'train' folder.
+- Thus, probabilies should be calcualted from emails in 'train' folder.
+- Please ignore all special characters(e.g. '~!@#$%^&*()-<>?/ .... )
+- Use C or C++. No other programming language (ex. python, Java etc)
+
+
+[Procedue for decision.]
+Per each email from test forder
+	calculate r(w1, ...... , wn) and apply a threshold.
+	assign label (spam or non-spam) which is a predicted label.
+
+
+Caclualte accuracy of your prediction.
+(the number of correctly classiferd test emails) divided by 40.
+- since we have 40 test emails (20 spam and 20 non-spam).
+
+
+For fun, let's try various 'threshold (T)' for decision.
+T = 0.6, 0.7, 0.8, 0.9, 0.95.
+This means that we will have 5 accuracies.
+
+
+* What to submit.
+- Your C code. (it should be ready for excution, TA will test it.)
+- Report (attached in the notice).
+- Zip your report and your code (.c) and submit.
+
+
+
+Deadline: 11.30(Wed) 23:00
+
+1)모든 word에 대한 P(word | spam) 과 P (word | nonSpam)을 구한다.
+2) 어떤 문장이 들어왔을 때 그 문장에 있는 단어들을 W1,W2, ... 라고 했을 때
+r(W1,W2,...) =   P( 모든 W_n | spam ) 들의 곱
+		-------------------
+	P(모든 W_n | spam)들의 곱 + P(모든 W_n | nonSpam)들의 곱      를 통해 구한다.
+
+알고리즘
+
+1) train에 있는 애들을 하나하나 for문으로 읽는다.
+그리고 for문 속에서 전처리 + spam여부 확인 후 spam_map[단어 이름]++; 과 nonspam_map[단어이름]++; 한다.
+그리고 P(spam) , P(non spam)도 구한다.
+
+
+그러면 위의 자료를 통해 P(Word | spam) P (Word| nonSpam)을 구할 수 있다.
+
+2) 
+
