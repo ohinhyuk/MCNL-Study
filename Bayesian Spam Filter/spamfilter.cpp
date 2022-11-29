@@ -12,7 +12,6 @@
     For fun, threshold (T) has various value.
     - T = 0.6, 0.7, 0.8, 0.9, 0.95.
     - This means that we will have 5 accuracies.
-
 */
 
 #include <iostream>
@@ -31,6 +30,8 @@ map<string,int> spam_num;   // pair < word , num > of all word in spam train100
 map<string,int> ham_num;    // pair < word , num > of all word in ham train100
 double r_ham[20];           // Bayesian result ( percent ) of all mail in ham test20
 double r_spam[20];          // Bayesian result ( percent ) of all mail in spam test20
+
+
 
 // Training Function
 // Using training set -> Get map<string , int> spam_num , map<string,int> ham_num
@@ -102,7 +103,11 @@ void training(string filename){
 }
 }
 
-void calculate(string filename){
+// Test Function
+// After training function, we can probability of spam of test data.
+// test file read -> test file preprocessing -> calculate posibility (r) using Bayesian.
+
+void test(string filename){
 
     int r_index = 1;
     set<string> uniQset;    // for preprocessing (unique)
@@ -191,8 +196,8 @@ int main(int argc , char** argv){
     training("csv/train/dataset_spam_train100.csv");
     training("csv/train/dataset_ham_train100.csv");
 
-    calculate("csv/test/dataset_spam_test20.csv");  
-    calculate("csv/test/dataset_ham_test20.csv");   
+    test("csv/test/dataset_spam_test20.csv");  
+    test("csv/test/dataset_ham_test20.csv");   
 
     for(int i = 0 ; i < 5 ; ++i){
         s_num = 0;
