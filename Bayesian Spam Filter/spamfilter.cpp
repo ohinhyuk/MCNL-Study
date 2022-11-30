@@ -109,7 +109,7 @@ void training(string filename){
 
 void test(string filename){
 
-    int r_index = 1;
+    int r_index = 0;
     set<string> uniQset;    // for preprocessing (unique)
 
     string temp, line, buffer;
