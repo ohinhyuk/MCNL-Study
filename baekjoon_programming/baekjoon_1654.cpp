@@ -5,10 +5,10 @@ using namespace std;
 int main(int argc, char** argv){
     
     int K , N , N_num;
-    unsigned len;
+    unsigned int len;
     unsigned int left = 1;
     unsigned int right = 0;
-    int ans = 0;
+    unsigned int ans = 0;
     
     cin >> K >> N;
     
