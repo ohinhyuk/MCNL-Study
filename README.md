@@ -8,22 +8,22 @@
 ## ✏️ What I Studied
 <br>
 
-> ### 1) Advanced data structures
+> #### 1) Advanced data structures
 >  * Find-union
 >   * Red_black tree
 >    * Segment tree
 >  * Trie
 <br>
 
-> ### 2) System programming
+> #### 2) System programming
 > * mallc ( Explicit allocator , inplicit allocator )
 <br>
 
-> ### 3) Network programming
+> #### 3) Network programming
 > * Basic socket programming
 <br>
 
-> ### 4) Algorithm
+> #### 4) Algorithm
 > * 백준 문제
 
 <hr>
@@ -32,10 +32,10 @@
 ## 😎 What I Implemented
 <br>
 
-> * ### Trie 기반 자동 완성 검색 엔진 ( <img src="https://img.shields.io/badge/c-gray?style=plastic&logo=c&logoColor=white"> <img src="https://img.shields.io/badge/cpp-FF3399?style=plastic&logo=c%2B%2B&logoColor=white"> <img src="https://img.shields.io/badge/linux-FCC624?style=plastic&logo=linux&logoColor=black"> 
-> * ### Red Black 기반 Map STL ( cpp )
-> * ### Explicit allocator , inplicit allocator ( Malloc , cpp )
-> * ### bayesian spam filter ( cpp )
-> * ### Simple network search engine ( c , cpp , linux)	
+> * #### Trie 기반 자동 완성 검색 엔진  &nbsp; <img src="https://img.shields.io/badge/c-gray?style=plastic&logo=c&logoColor=white"> <img src="https://img.shields.io/badge/cpp-FF3399?style=plastic&logo=c%2B%2B&logoColor=white"> <img src="https://img.shields.io/badge/linux-FCC624?style=plastic&logo=linux&logoColor=black"> 
+> * #### Red Black 기반 Map STL  &nbsp; <img src="https://img.shields.io/badge/cpp-FF3399?style=plastic&logo=c%2B%2B&logoColor=white">
+> * #### Explicit allocator , inplicit allocator ( Malloc )  &nbsp; <img src="https://img.shields.io/badge/cpp-FF3399?style=plastic&logo=c%2B%2B&logoColor=white">
+> * #### bayesian spam filter  &nbsp; <img src="https://img.shields.io/badge/cpp-FF3399?style=plastic&logo=c%2B%2B&logoColor=white">
+> * #### Simple network search engine  &nbsp; <img src="https://img.shields.io/badge/c-gray?style=plastic&logo=c&logoColor=white"> <img src="https://img.shields.io/badge/cpp-FF3399?style=plastic&logo=c%2B%2B&logoColor=white"> <img src="https://img.shields.io/badge/linux-FCC624?style=plastic&logo=linux&logoColor=black">
 
 
