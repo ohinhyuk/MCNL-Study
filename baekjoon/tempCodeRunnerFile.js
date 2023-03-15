@@ -1,1 +1,2 @@
-.split("\n");
+
+answer.forEach
