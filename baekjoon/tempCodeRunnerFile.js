@@ -1,1 +1,1 @@
->=
+curr(newArray , 0);
